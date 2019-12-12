@@ -1,0 +1,207 @@
+!架空梁检算
+/PREP7  
+!*  
+ET,1,BEAM4  
+R,1,46280,7.87e9,3.12e8, , , ,         !主梁截面特性(1m工字钢)
+R,2,1.11e4,3.38e8,8.94e6, , , ,         !钢枕截面特性(45工字钢)
+R,3,7697,2.9e6,2.9e7, , , ,             !钢轨截面特性
+MP,EX,1,2.1e5  
+MP,PRXY,1,,0.3 
+MP,DENS,1,7.8e-6                       !钢材密度(kg/mm3))
+!
+k,1,0,0,0
+k,2,500,0,0
+lstr,1,2
+*do,ii,3,27,1
+  k,ii,500+600*(ii-2)
+  LSTR,ii-1,ii
+*enddo
+k,28,16000,0,0
+lstr,27,28
+k,31,0,0,1788
+k,32,500,0,1788
+lstr,31,32
+*do,ii,33,57,1
+  k,ii,500+600*(ii-32),0,1788
+  LSTR,ii-1,ii
+*enddo
+k,58,16000,0,1788
+lstr,57,58
+k,61,0,0,3293
+k,62,500,0,3293
+lstr,61,62
+*do,ii,63,87,1
+  k,ii,500+600*(ii-62),0,3293
+  LSTR,ii-1,ii
+*enddo
+k,88,16000,0,3293
+lstr,87,88
+k,91,0,0,5080
+k,92,500,0,5080
+lstr,91,92
+*do,ii,93,117,1
+  k,ii,500+600*(ii-92),0,5080
+  LSTR,ii-1,ii
+*enddo
+k,118,16000,0,5080
+lstr,117,118
+*do,ii,1,28,1
+  *do,jj,1,3,1
+    LSTR,(jj-1)*30+ii,  jj*30+ii,
+  *enddo
+*enddo
+LESIZE,ALL,100, , , ,1, , ,1,
+TYPE,   1   
+MAT,    1
+REAL,   1
+lsel,s,loc,z,0
+lsel,a,loc,z,5080  
+LMESH,all
+allsel,all 
+TYPE,   1   
+MAT,    1
+REAL,   3
+lsel,s,loc,z,1788
+lsel,a,loc,z,3293
+LMESH,all
+allsel,all
+TYPE,   1   
+MAT,    1
+REAL,   2
+lsel,all
+lsel,u,loc,z,0
+lsel,u,loc,z,5080
+lsel,u,loc,z,1788
+lsel,u,loc,z,3293
+LMESH,all
+allsel,all
+ACEL,0,10           !定义重力加速度
+
+/solu
+!约束，可根据实际情况增加约束
+
+
+g=1.169*220000/2              !集中荷载（N）冲击系数取1.169
+q1=1.169*92/2
+q2=1.169*80/2
+ll=15000                  !跨度
+nHzb=ll/100+1            !荷载总步数，只考虑荷载加之梁端
+w_zh=5080
+w_zl=1505
+zz_ld=500                 !支座距梁端
+nsel,s,loc,z,(w_zh-w_zl)/2
+cm,move2,node
+nsel,a,loc,z,(w_zh+w_zl)/2
+cm,move1,node           !保存运动轨迹
+allsel,all
+nsel,s,loc,z,(w_zh+w_zl)/2
+cm,move3,node
+allsel,all
+
+Delt_Time=0.1/(80*5/18)      !通过每单元的时间（V=80km/h）
+*do,ii,1,nHzb,1
+l_jld=zz_ld+(ii-1)*100            !第一轴距梁端距离
+  TIME,ii*Delt_Time     !结束时间
+  KBC,0                 !台阶加载
+  NSUBST,5              !子步数为五
+  *if,l_jld,le,zz_ld+1500,then
+    f,NODE(l_jld,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld,0,(w_zh+w_zl)/2),fy,-g
+    *if,l_jld,eq,zz_ld+1500,then
+      f,NODE(zz_ld,0,(w_zh-w_zl)/2),fy,-g
+      f,NODE(zz_ld,0,(w_zh+w_zl)/2),fy,-g 
+    *endif      
+    solve           !LSWR,ii
+    fdele,all,all
+  *elseif,l_jld,gt,zz_ld+1500,and,l_jld,le,zz_ld+3000
+    f,NODE(l_jld,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh+w_zl)/2),fy,-g
+    *if,l_jld,eq,zz_ld+3000,then
+      f,NODE(zz_ld,0,(w_zh-w_zl)/2),fy,-g
+      f,NODE(zz_ld,0,(w_zh+w_zl)/2),fy,-g
+    *endif      
+    solve           !LSWR,ii
+    fdele,all,all 
+  *elseif,l_jld,gt,zz_ld+3000,and,l_jld,le,zz_ld+4500
+    f,NODE(l_jld,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh+w_zl)/2),fy,-g
+    *if,l_jld,eq,zz_ld+4500,then
+      f,NODE(zz_ld,0,(w_zh-w_zl)/2),fy,-g
+      f,NODE(zz_ld,0,(w_zh+w_zl)/2),fy,-g
+    *endif         
+    solve           !LSWR,ii
+    fdele,all,all 
+   *elseif,l_jld,gt,zz_ld+4500,and,l_jld,le,zz_ld+6000
+    f,NODE(l_jld,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh+w_zl)/2),fy,-g 
+    f,NODE(l_jld-4500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-4500,0,(w_zh+w_zl)/2),fy,-g
+    *if,l_jld,eq,zz_ld+6000,then
+      f,NODE(zz_ld,0,(w_zh-w_zl)/2),fy,-g
+      f,NODE(zz_ld,0,(w_zh+w_zl)/2),fy,-g
+    *endif              
+    solve           !LSWR,ii
+    fdele,all,all 
+   *elseif,l_jld,gt,zz_ld+6000,and,l_jld,le,zz_ld+7500
+    f,NODE(l_jld,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh+w_zl)/2),fy,-g 
+    f,NODE(l_jld-4500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-4500,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-6000,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-6000,0,(w_zh+w_zl)/2),fy,-g
+    solve           !LSWR,ii
+    fdele,all,all
+   *elseif,l_jld,gt,zz_ld+7500,and,l_jld,le,zz_ld+37500
+    f,NODE(l_jld,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-1500,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-3000,0,(w_zh+w_zl)/2),fy,-g 
+    f,NODE(l_jld-4500,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-4500,0,(w_zh+w_zl)/2),fy,-g
+    f,NODE(l_jld-6000,0,(w_zh-w_zl)/2),fy,-g
+    f,NODE(l_jld-6000,0,(w_zh+w_zl)/2),fy,-g
+    cmsel,,move2
+    nsel,r,loc,x,l_jld-6000
+    esln
+    esel,r,real,,3
+    *get,emax1,elem,,num,min
+    emax1=emax1-15
+    allsel,all
+    cmsel,,move3
+    nsel,r,loc,x,l_jld-6000
+    esln     
+    *get,emax2,elem,,num,min
+    emax2=emax2-15    
+    allsel,all    
+    cmsel,,move1
+    nsel,r,loc,x,zz_ld+100     !选择0.5米处纵梁上的点（如果单元划分不为0.5，应修改）
+    esln
+    *get,emin1,elem,,num,min 
+    *get,emin2,elem,,num,max
+    emin2=emin2-1
+    allsel,all
+    esel,s,elem,,emin1,emax1
+    esel,a,elem,,emin2,emax2      
+    SFBEAM,all,2,PRES,q1, , , , , ,    
+    allsel,all
+    solve           !LSWR,ii
+    fdele,all,all 
+    SFEDELE,ALL,2,PRES
+    *endif
+*enddo  

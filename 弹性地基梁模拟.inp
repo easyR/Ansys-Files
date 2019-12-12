@@ -1,0 +1,84 @@
+fini
+!弹性地基梁模拟
+/clear
+/PREP7  
+!*  
+ET,1,BEAM3        !梁单元（模拟柱、盖梁及基础）
+ET,2,COMBIN14      !模拟土体弹性地基
+r,1,0.5,0.001,0.5
+r,2,60e3
+
+MP,EX,1,3E+007 
+MP,PRXY,1,0.2
+
+type,1
+real,1
+*do,i,1,21,1
+  x=(i-1)*0.5
+  n,i,x,2
+*enddo
+*do,i,1,20,1
+  e,i,i+1
+*ENDDO
+
+
+*do,i,1,21,1
+  x=(i-1)*0.5
+  n,i+21,x,0
+*enddo
+
+type,2
+real,2
+
+*do,i,1,21,1
+  e,i,i+21
+*ENDDO
+
+/sol
+*do,i,1,21,1
+  d,i+21,uy,0
+  d,i+21,ux,0
+*ENDDO
+
+f,6,fy,-20000
+f,12,fy,-40000
+
+nropt,full,,
+allsel,all
+outres,all,all
+
+solve
+
+/post1
+etable,zl,smisc,1
+onezl=-1000
+*do,i,1,41,1      !该循环判断是否存在受拉的弹簧单元
+  *GET,zl,ELEM,i,ETAB,zl !从etable中获得数据
+  *if,zl,gt,0,then
+      onezl=1000
+  *endif  
+*enddo
+
+*dowhile,onezl
+  *do,i,1,41,1
+    /post1
+   *GET,zl,ELEM,i,ETAB,zl !从etable中获得数据
+    /sol  
+    *if,zl,gt,0,then
+        ekill,i
+    *endif
+  *enddo  
+  
+  solve
+  
+   /post1
+  etable,zl,smisc,1
+  onezl=-1000
+  *do,i,1,41,1    !该循环判断是否存在受拉的弹簧单元
+    *GET,zl,ELEM,i,ETAB,zl !从etable中获得数据
+    *if,zl,gt,0,then
+      onezl=1000
+    *endif  
+  *enddo
+*enddo  
+  

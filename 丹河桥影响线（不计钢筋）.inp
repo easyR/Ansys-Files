@@ -1,0 +1,447 @@
+fini
+/clear
+
+!丹河南拱桥计算——影响线，截面I 不计钢筋
+/PREP7  
+!*  
+ET,1,BEAM44
+ET,2,BEAM44                     !目的在于解除钢枕与总量的I节点z弯矩
+ET,3,BEAM44                     !目的在于解除钢枕与总量的J节点z弯矩
+ET,4,link8
+MP,EX,1,0.8*3.26e7                           !(Kpa 千牛每平方米，以下力的单位亦应为千牛）
+MP,PRXY,1,0.2 
+MP,DENS,1,25
+
+MP,EX,2,0.8*3.12e7                           !(Kpa 千牛每平方米，以下力的单位亦应为千牛）
+MP,PRXY,2,0.2 
+MP,DENS,2,25
+
+!建立拱部模型（关键点）
+k,1,0,-21,0
+k,2,1*44/12,-17.319,0
+k,3,2*44/12,-14.046,0
+k,4,3*44/12,-11.197,0
+k,5,4*44/12,-8.731,0
+k,6,5*44/12,-6.610,0
+k,7,6*44/12,-4.795,0
+k,8,7*44/12,-3.286,0
+k,9,8*44/12,-2.082,0
+k,10,9*44/12,-1.162,0
+k,11,10*44/12,-0.513,0
+k,12,11*44/12,-0.128,0
+k,13,12*44/12,0,0
+k,14,13*44/12,-0.128,0
+k,15,14*44/12,-0.513,0
+k,16,15*44/12,-1.162,0
+k,17,16*44/12,-2.082,0
+k,18,17*44/12,-3.286,0
+k,19,18*44/12,-4.795,0
+k,20,19*44/12,-6.610,0
+k,21,20*44/12,-8.731,0
+k,22,21*44/12,-11.197,0
+k,23,22*44/12,-14.046,0
+k,24,23*44/12,-17.319,0
+k,25,24*44/12,-21,0
+!建立拱部曲线
+*do,ii,1,24,1
+   LSTR,ii,ii+1
+*enddo
+!建立梁部模型
+
+k,26,-1.85,0.9
+k,27,3.3,0.9
+k,28,8.3,0.9
+k,29,13.3,0.9
+k,30,18.3,0.9
+k,31,23.3,0.9
+k,32,28.3,0.9
+k,33,33.45,0.9
+k,34,40.485,0.9
+k,35,44,0.9
+k,36,47.515,0.9
+k,37,54.55,0.9
+k,38,59.7,0.9
+k,39,64.7,0.9
+k,40,69.7,0.9
+k,41,74.7,0.9
+k,42,79.7,0.9
+k,43,84.7,0.9
+k,44,89.85,0.9
+
+*do,ii,26,43,1
+   LSTR,ii,ii+1
+*enddo
+
+!建立支柱模型
+k,46,3.3,-22
+k,47,8.3,-22
+k,48,13.3,-22
+k,49,18.3,-22
+k,50,23.3,-22
+k,51,28.3,-22
+k,52,33.45,-22
+k,53,40.485,-22
+
+k,55,47.515,-22
+k,56,54.55,-22
+k,57,59.7,-22
+k,58,64.7,-22
+k,59,69.7,-22
+k,60,74.7,-22
+k,61,79.7,-22
+k,62,84.7,-22
+
+*do,ii,27,34,1
+   LSTR,ii,ii+19
+*enddo
+
+*do,ii,36,43,1
+   LSTR,ii,ii+19
+*enddo
+
+LSTR,35,13
+btol,1e-6       !设定布尔运算容差
+FLST,2,2,4,ORDE,2   
+FITEM,2,1   
+FITEM,2,43  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,3   
+FITEM,2,44  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,4   
+FITEM,2,45  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,5   
+FITEM,2,46  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,7   
+FITEM,2,47  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,8   
+FITEM,2,48  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,10  
+FITEM,2,49  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,12  
+FITEM,2,50  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,13  
+FITEM,2,51  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,15  
+FITEM,2,52  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,17  
+FITEM,2,53  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,18  
+FITEM,2,54  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,20  
+FITEM,2,55  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,21  
+FITEM,2,56  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,22  
+FITEM,2,57  
+LPTN,P51X   
+FLST,2,2,4,ORDE,2   
+FITEM,2,24  
+FITEM,2,58  
+LPTN,P51X   
+FLST,2,16,4,ORDE,16 
+FITEM,2,63  
+FITEM,2,65  
+FITEM,2,67  
+FITEM,2,69  
+FITEM,2,71  
+FITEM,2,73  
+FITEM,2,75  
+FITEM,2,77  
+FITEM,2,79  
+FITEM,2,81  
+FITEM,2,83  
+FITEM,2,85  
+FITEM,2,87  
+FITEM,2,89  
+FITEM,2,91  
+FITEM,2,93  
+LDELE,P51X, , ,1
+
+!选择拱轴线
+seltol,1e-6       !设定选择容差
+allsel,all,all
+lsel,s,loc,y,-22,0
+lsel,u,loc,x,3.3
+lsel,u,loc,x,8.3
+lsel,u,loc,x,13.3
+lsel,u,loc,x,18.3
+lsel,u,loc,x,23.3
+lsel,u,loc,x,28.3
+lsel,u,loc,x,33.45
+lsel,u,loc,x,54.55
+lsel,u,loc,x,59.7
+lsel,u,loc,x,64.7
+lsel,u,loc,x,69.7
+lsel,u,loc,x,74.7
+lsel,u,loc,x,79.7
+lsel,u,loc,x,84.7
+
+r,1,1,1,1
+LESIZE,ALL,1, , , ,1, , ,1,       !划分拱轴单元网格
+TYPE,   1   
+MAT,    1
+REAL,   1
+LMESH,all
+
+Emax=ELMIQR(0,13)   !选择的单元数
+*do,ii,1,Emax
+    zy=(ny(nelem(ii,1))+ny(nelem(ii,2)))/2     !单元质心Y坐标，nelem(ii,1)返回单元i节点号
+    *if,zy,ge,-21,and,zy,lt,-17.319,then        !计算拱肋高
+        dd=2.526+0.136*(-17.319-zy)/3.881    
+    *elseif, zy,ge,-17.319,and,zy,lt,-14.046
+        dd=2.429+0.097*(-14.046-zy)/3.273     
+    *elseif, zy,ge,-14.046,and,zy,lt,-11.197 
+        dd=2.306+0.123*(-11.197-zy)/3.209    
+    *elseif, zy,ge,-11.197,and,zy,lt,-8.731 
+        dd=2.194+0.112*(-8.731-zy)/2.466    
+    *elseif, zy,ge,-8.731,and,zy,lt,-6.610 
+        dd=2.116+0.078*(-6.610-zy)/2.121    
+    *elseif, zy,ge,-6.610,and,zy,lt,-4.795
+        dd=2.066+0.050*(-4.795-zy)/1.815    
+    *elseif, zy,ge,-4.795,and,zy,lt,-3.286 
+        dd=2.024+0.042*(-3.286-zy)/1.509    
+    *elseif, zy,ge,-3.286,and,zy,lt,-2.082
+        dd=1.969+0.055*(-2.082-zy)/1.204    
+    *elseif, zy,ge,-2.082,and,zy,lt,-1.162
+        dd=1.905+0.064*(-1.162-zy)/0.92    
+    *elseif, zy,ge,-1.162,and,zy,lt,-0.513
+        dd=1.844+0.061*(-0.513-zy)/0.649   
+    *elseif, zy,ge,-0.513,and,zy,lt,-0.128
+        dd=1.812+0.032*(-0.128-zy)/0.385   
+    *elseif, zy,ge,-0.128,and,zy,lt,0
+        dd=1.800+0.012*(0-zy)/0.128    
+    *elseif, zy,eq,0   
+        dd=1.8     
+    *endif  
+ 
+       
+    Iz=(1.3*dd**3-0.7*(dd-0.9)**3)/12     !截面惯性矩，z轴
+    AA=0.63+0.6*dd                                        !截面面积
+    Iy=0.148575+0.018*dd                                  !截面惯性矩，y轴
+    r,ii,AA,Iz,Iy,1.3,dd                                                   
+*enddo
+
+*do,ii,1,Emax                   !改变拱轴线单元实常数
+    emodif,ii,real,ii
+*enddo
+
+!划分立柱单元
+allsel,all,all
+lsel,s,loc,x,3.3
+lsel,a,loc,x,8.3
+lsel,a,loc,x,13.3
+lsel,a,loc,x,74.7
+lsel,a,loc,x,79.7
+lsel,a,loc,x,84.7
+
+Ilz1=0.8*0.4**3/12
+Al1=0.8*0.4
+Ily1=0.4*0.8**3/12
+r,123,Al1,Ilz1,Ily1,0.8,0.4
+
+LESIZE,ALL,0.5, , , ,1, , ,1,       !划分立柱（0.4宽）单元网格
+TYPE,   1   
+MAT,    2
+REAL,   123
+LMESH,all
+
+allsel,all,all
+lsel,s,loc,x,18.3
+lsel,a,loc,x,23.3
+lsel,a,loc,x,28.3
+lsel,a,loc,x,33.45
+lsel,a,loc,x,40.485
+lsel,a,loc,x,44
+lsel,a,loc,x,47.515
+lsel,a,loc,x,54.55
+lsel,a,loc,x,59.7
+lsel,a,loc,x,64.7
+lsel,a,loc,x,69.7
+
+Ilz2=0.8*0.3**3/12
+Al2=0.8*0.3
+Ily2=0.3*0.8**3/12
+r,124,Al2,Ilz2,Ily2,0.8,0.3
+
+LESIZE,ALL,0.5, , , ,1, , ,1,       !划分立柱（0.3宽）单元网格
+TYPE,   1   
+MAT,    2
+REAL,   124
+LMESH,all
+
+KEYOPT,2,7,1      !释放节点自由度，2为单元类型号，7为I节点，1为绕Z轴自由度
+KEYOPT,3,8,1
+
+!释放I节点绕Z轴自由度
+emodif,319,TYPE,2
+emodif,330,TYPE,2
+emodif,337,TYPE,2
+emodif,341,TYPE,2
+emodif,301,TYPE,2
+emodif,344,TYPE,2
+emodif,347,TYPE,2
+emodif,351,TYPE,2
+emodif,358,TYPE,2
+
+!释放J节点绕Z轴自由度
+emodif,329,TYPE,3
+emodif,336,TYPE,3
+emodif,340,TYPE,3
+emodif,343,TYPE,3
+emodif,302,TYPE,3
+emodif,346,TYPE,3
+emodif,350,TYPE,3
+emodif,357,TYPE,3
+emodif,368,TYPE,3
+
+allsel,all,all
+
+!划分梁部单元
+lsel,s,loc,y,0.9
+lsel,u,loc,x,33.45,54.55
+r,125,0.6933,0.035442,1,2,0.75       !梁体实常数，非拱顶截面
+LESIZE,ALL,0.1, , , ,1, , ,1,       !划分梁单元网格
+TYPE,   1   
+MAT,    2
+REAL,   125
+LMESH,all
+
+allsel,all,all
+lsel,s,loc,y,0.9
+lsel,r,loc,x,33.45,54.55
+r,126,0.66,0.00495,1,2,0.3          !梁体实常数，拱顶截面
+LESIZE,ALL,0.1, , , ,1, , ,1,       !划分梁单元网格
+TYPE,   1   
+MAT,    2
+REAL,   126
+LMESH,all
+
+!释放I节点绕Z轴自由度
+emodif,1093,TYPE,2
+emodif,1164,TYPE,2
+emodif,1200,TYPE,2
+emodif,1236,TYPE,2
+
+!释放J节点绕Z轴自由度
+emodif,1163,TYPE,3
+emodif,1199,TYPE,3
+emodif,1235,TYPE,3
+emodif,1306,TYPE,3
+
+!增加拱部受压单元（link8模拟）
+TYPE,   4   
+MAT,    1
+r,127,1
+REAL,   127
+e,99,1089
+e,98,1097
+e,97,1105
+e,39,1113
+e,40,1123
+e,41,1132
+e,42,1141
+e,37,1151
+e,102,1160
+e,101,1169
+e,100,1178
+e,45,1195
+e,46,1204
+e,47,1213
+e,53,1223
+e,54,1232
+e,55,1241
+e,56,1250
+e,48,1260
+e,50,1268
+e,51,1276
+e,52,1284
+
+/solu
+D,118,all                    !约束，拱角全约束
+D,113,all
+D,386,UY,0
+D,1030,UY,0
+
+!加载
+
+x0=-1.7                           !从-1.0开始加载
+x1=43.8!89.85
+LHY=0.9                   !加载平面的竖向坐标
+D_l=0.5                         !单位荷载移动步长
+nHzb=nint((x1-x0)/D_l+0.5)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0                         !单位荷载移动位置
+
+*do,ii,1,nHzb,1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+      *if,xx,gt,x1,then
+        *exit
+      *endif    
+  nsel,s,node,,node(xx,LHY,0) 
+  esln
+  *get,emin,elem,,num,min
+  ee=emin        
+  edy=0                     !先给荷载单元赋值 
+  ecount=elmiqr(0,13)      
+  *do,nn,1,ecount
+      ye1= ny(nelem(ee,1))    !单元节点坐标  
+      ye2= ny(nelem(ee,2))
+      xe1= nx(nelem(ee,1))
+      xe2= nx(nelem(ee,2))
+      *if,abs(ye1-ye2),le,1e-6,and,(xx-xe1)*(xx-xe2),le,0,then
+          edy=ee
+      *endif
+      ee=elnext(ee)                            
+  *enddo
+      cc=abs(nx(nelem(edy,1))-nx(nelem(edy,2)))          !单元x方向长
+      aa=abs(nx(nelem(edy,1))-xx)                       !I节点距荷载长度
+      bb=abs(nx(nelem(edy,2))-xx)                       !J节点距荷载长度
+      hzi=1*bb/cc                           !I节点等效荷载
+      hzj=1*aa/cc                           !j节点等效荷载
+
+      allsel,all,all
+      f,nelem(edy,1),fy,-hzi
+      f,nelem(edy,2),fy,-hzj
+  
+  hzwz(ii)=xx                    !将荷载的实际位置存入数组
+  solve
+  xx=xx+D_l 
+*enddo
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos

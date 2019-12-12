@@ -1,0 +1,68 @@
+fini
+/clear
+!角钢桁架计算
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1  
+
+
+R,1,12.3e-4     !弦杆
+R,2,4.8e-4      !腹杆
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3
+MPDATA,DENS,1,,7.8 
+TYPE,1  
+MAT,1
+REAL,1
+ll=7.0              !梁全长
+hh=0.5                 !桁梁高
+ww=0.292                  !节间长
+nn1=nint(ll/ww)+1           !一侧主桁下弦纵向节点最大编号
+!
+!以下完成单侧平面桁架单元的建立
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+n,nn1+1,0,hh,0           !上弦第一点
+n,2*nn1,ll,hh,0           !上弦最后一点
+fill,nn1+1,2*nn1
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn1+1,2*nn1-1,1      !上弦单元
+  e,ii,ii+1                 
+*enddo
+
+!腹杆单元
+real,2
+  e,1,nn1+1                 !端竖杆
+*do,ii,2,nn1-1,2            !奇数点
+  e,ii,nn1+ii-1
+  e,ii,nn1+ii+1
+*enddo
+  e,nn1,2*nn1             !最后一竖杆
+
+/solu
+                 !约束，可根据实际情况增加约束
+D,1,UY
+D,25,uy
+D,25,ux
+
+ACEL,,10             !施加y方向重力加速度，本计算不施加
+!施加荷载
+!加载
+
+ fdele,all,all
+*do,ii,nn1+1,2*nn1,2
+
+  f,ii,fy,-1.495
+*enddo
+
+solve
+
+FINISH  
+/POST1  
+etable,zl,ls,1  

@@ -1,0 +1,93 @@
+!
+! Define the APDL parameters
+LENGTH    = 100.0
+YOUNG     = 210000.0
+THICKNESS = 1.0
+FORCE     = 100.0
+DENSITY   = 8.0e-6
+!
+! PRE-PROCESSING
+! ==============
+/PREP7  
+/tit,Simple plate with single force load  
+!
+! Define the Material properties
+! ------------------------------
+MP,EX,  1,YOUNG
+MP,NUXY,1,0.3
+MP,DENS,1,DENSITY
+!
+! Define element type and properties 
+! ----------------------------------
+et,1,shell63
+R,1,THICKNESS,THICKNESS,THICKNESS,THICKNESS
+!
+! Build up the geometry of the plate
+! ----------------------------------
+!
+! Keypoints
+k,1,   0.0,   0.0
+k,2,LENGTH,   0.0 
+k,3,LENGTH,LENGTH
+k,4,   0.0,LENGTH
+!
+! Area
+A,1,2,3,4
+!
+! Mesh definitions and meshing of area
+! ------------------------------------
+LSEL,ALL
+lesize,all,,,16
+amesh,all
+FINISH
+!
+! BOUNDARY CONDITIONS AND SOLVE
+! =============================
+/SOLU
+!
+! kinematic boundary conditions
+! select the nodes at x=0.0 and fix them
+nsel,s,loc,x,0.0,0.0
+D,ALL,ALL,0.0
+!
+! select the nodes at x=100.0 and fix them
+nsel,s,loc,x,LENGTH,LENGTH
+D,ALL,ALL,0.0
+!
+! select the center node and apply single force
+nsel,s,loc,x,0.5*LENGTH,0.5*LENGTH
+nsel,r,loc,y,0.5*LENGTH,0.5*LENGTH
+F,ALL,FZ,FORCE
+allsel
+!
+! Solve the problem
+SOLVE
+FINISH
+!
+! POST-PROCESSING AND DIG OUT RESULT PARAMETERS
+! =============================================
+/POST1
+/dsc,,10.0  
+PLNSOL,U,Z,0,1
+!
+! Retrieve maximum deflection
+nsel,all
+!
+! Sort the displacements at nodes in ascending
+! order according to absolute values
+nsort,U,Z,1,1
+!
+! Dig out the maximum absolute displacement
+*get,MaxDeflection,sort,0,max
+!
+! 
+! select the nodes at the constrained edges
+nsel,s,loc,x,0.0
+nsel,a,loc,x,LENGTH,LENGTH
+!
+! Sort the stresses at nodes in ascending
+! order according to absolute values
+nsort,S,EQV,1,1
+!
+! Dig out the maximum absolute stress
+*get,MaxStress,sort,0,max

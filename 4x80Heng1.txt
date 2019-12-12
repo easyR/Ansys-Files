@@ -1,0 +1,318 @@
+fini
+/clear
+!4X80 M 连续桁梁模型建立
+/PREP7  
+!*  
+ET,2,BEAM4  
+ET,1,LINK8  
+R,1,2.7e-2, , 
+R,2,6e-2,0.005,1, , , ,  
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e11 
+MPDATA,PRXY,1,,0.3 
+TYPE,1  
+MAT,1
+REAL,1
+ll=1*48              !梁全长
+hh=13.856             !桁梁高
+ww=8                  !节间长
+w_zh=5.25              !主桁中心距
+w_zl=2.2              !主梁中心距
+nn1=ll/ww+1           !一侧主桁下弦纵向节点最大编号
+!
+!以下完成单侧平面桁架单元的建立
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+n,nn1+1,ww,hh,0           !上弦第一点
+n,2*nn1-2,ll-ww,hh,0           !上弦最后一点
+fill,nn1+1,2*nn1-2
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn1+1,2*nn1-3,1      !上弦单元
+  e,ii,ii+1
+*enddo
+  e,1,nn1+1                 !第一端斜杆
+*do,ii,3,nn1-2,2            !奇数点
+  e,ii,nn1+ii-2
+  e,ii,nn1+ii-1
+  e,ii,nn1+ii
+*enddo
+  e,nn1,2*nn1-2             !最后一根端斜杆
+*do,ii,2,nn1-1,2            !偶数点，只有竖杆
+  e,ii,nn1+ii-1
+*enddo
+!以下完成另一侧平面桁架单元的建立
+mm1=2*nn1-1                  !第一点号
+mm2=mm1+nn1-1                !下弦最后一点号
+n,mm1,0,0,-w_zh              !下弦第一点
+n,mm2,ll,0,-w_zh            !下弦最后一点
+fill,mm1,mm2
+n,mm2+1,ww,hh,-w_zh            !上弦第一点
+n,mm2+nn1-2,ll-ww,hh,-w_zh           !上弦最后一点
+fill,mm2+1,mm2+nn1-2
+*DO,ii,mm1,mm2-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,mm2+1,mm2+nn1-3,1      !上弦单元
+  e,ii,ii+1
+*enddo
+  e,mm1,mm2+1                 !第一端斜杆
+*do,ii,mm1+2,mm2-2,2            !奇数点
+  e,ii,nn1+ii-2
+  e,ii,nn1+ii-1
+  e,ii,nn1+ii
+*enddo
+  e,mm2,mm2+nn1-2             !最后一根端斜杆
+*do,ii,mm1+1,mm2-1,2            !偶数点，只有竖杆
+  e,ii,nn1+ii-1
+*enddo
+!
+!建立横梁单元
+TYPE,2   
+MAT,1
+REAL,2   
+n_start_h=mm2+nn1-1            !第一横梁中间第一点号
+w_x=0                         !沿桁架方向坐标（x)
+js=0                          !第几个节间
+*do,ii,1,nn1,1
+  w_x=js*ww
+  n,n_start_h,w_x,0,-(w_zh-w_zl)/2
+  n,n_start_h+1,w_x,0,-(w_zh+w_zl)/2
+  e,ii,n_start_h
+  e,n_start_h,n_start_h+1
+  e,n_start_h+1,2*nn1+ii-2
+  n_start_h=n_start_h+2
+  js=js+1
+*enddo
+!建立纵梁模型
+js=0
+*Do,ii,1,2*(nn1-1)-1,2                        !第一主梁
+  k,ii,js*ww,0,-(w_zh-w_zl)/2
+  k,ii+1,(js+1)*ww,0,-(w_zh-w_zl)/2
+  l,ii,ii+1
+  js=js+1
+*ENDDO
+js=0
+*Do,ii,2*nn1-1,4*nn1-4,2                     !第二主梁
+  k,ii,js*ww,0,-(w_zh+w_zl)/2
+  k,ii+1,(js+1)*ww,0,-(w_zh+w_zl)/2
+  l,ii,ii+1
+  js=js+1
+*ENDDO
+
+lesize,all,0.5        !划分纵梁单元网格，单元长0.5
+lmesh,all
+
+!节点耦合
+nsel,s,loc,x,0      !第一横梁，第一主梁
+nsel,r,loc,z,-(w_zh-w_zl)/2
+cc1=NODE(0,0,-(w_zh-w_zl)/2)
+cp,1,uy,cc1,NDNEXT(cc1)
+cp,2,ux,cc1,NDNEXT(cc1)
+allsel,all
+nsel,s,loc,x,ll     !最后横梁，第一主梁
+nsel,r,loc,z,-(w_zh-w_zl)/2
+cc1=NODE(ll,0,-(w_zh-w_zl)/2)
+cp,3,uy,cc1,NDNEXT(cc1)
+cp,4,ux,cc1,NDNEXT(cc1)
+allsel,all
+bh=4
+*DO,ii,1,nn1-2,1
+  nsel,s,loc,x,ii*ww     
+  nsel,r,loc,z,-(w_zh-w_zl)/2
+  *GET,jj,node,,count
+  *GET,cc1,node,,num,min
+  nnn=cc1  
+  *do,jj_,1,jj,1
+  *if,abs(nx(nnn)-ii*ww),gt,0.001,then !控制不要把距离远的点选上
+    nsel,u,node,,nnn 
+  *endif 
+  nnn=ndnext(nnn)  
+  *ENDDO      
+   cp,bh+1,uy,cc1,NDNEXT(cc1),NDNEXT(NDNEXT(cc1))
+   cp,bh+2,ux,cc1,NDNEXT(cc1),NDNEXT(NDNEXT(cc1))
+   bh=bh+2
+  allsel,all
+*ENDDO
+nsel,s,loc,x,0      !第一横梁，第二主梁
+nsel,r,loc,z,-(w_zh+w_zl)/2
+cc1=NODE(0,0,-(w_zh+w_zl)/2)
+cp,bh+1,uy,cc1,NDNEXT(cc1)
+cp,bh+2,ux,cc1,NDNEXT(cc1)
+allsel,all
+nsel,s,loc,x,ll     !最后横梁，第一主梁
+nsel,r,loc,z,-(w_zh+w_zl)/2
+cc1=NODE(ll,0,-(w_zh+w_zl)/2)
+cp,bh+3,uy,cc1,NDNEXT(cc1)
+cp,bh+4,ux,cc1,NDNEXT(cc1)
+allsel,all
+bh=bh+4
+*DO,ii,1,nn1-2,1
+  cc1=NODE(ii*ww,0,-(w_zh+w_zl)/2)
+  nsel,s,loc,x,ii*ww     
+  nsel,r,loc,z,-(w_zh+w_zl)/2
+  *GET,jj,node,,count
+  *GET,cc1,node,,num,min
+  nnn=cc1  
+  *do,jj_,1,jj,1
+  *if,abs(nx(nnn)-ii*ww),gt,0.001,then !控制不要把距离远的点选上
+    nsel,u,node,,nnn 
+  *endif 
+  nnn=ndnext(nnn)  
+  *ENDDO
+  cp,bh+1,uy,cc1,NDNEXT(cc1),NDNEXT(NDNEXT(cc1))
+  cp,bh+2,ux,cc1,NDNEXT(cc1),NDNEXT(NDNEXT(cc1))
+  bh=bh+2
+  allsel,all
+*ENDDO
+
+!求解
+/solu
+D,1, , , , , ,UX,UY,UZ, , ,         !约束，可根据实际情况增加约束
+D,2*nn1-1, , , , , ,UX,UY,UZ, , , 
+D,nn1,UY
+D,3*nn1-2,UY
+
+g=220000/2              !集中荷载（N）
+q1=92000/2
+q2=80000/2
+nHzb=ll/0.5             !荷载总步数，只考虑荷载加之梁端
+nsel,s,loc,z,-(w_zh-w_zl)/2
+nsel,a,loc,z,-(w_zh+w_zl)/2
+cm,move1,node           !保存运动轨迹
+*do,ii,1,nHzb,1
+l_jld=ii*0.5            !第一轴距梁端距离
+  *if,l_jld,le,1.5,then
+    cmsel,,move1
+    nsel,r,loc,x,l_jld  
+    f,all,fy,-g
+    allsel,all
+    LSWR,ii
+    fdele,all,all
+  *elseif,l_jld,gt,1.5,and,l_jld,le,3
+    cmsel,,move1
+    nsel,r,loc,x,l_jld  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-1.5  
+    f,all,fy,-g
+    allsel,all
+    LSWR,ii
+    fdele,all,all 
+  *elseif,l_jld,gt,3,and,l_jld,le,4.5
+    cmsel,,move1
+    nsel,r,loc,x,l_jld  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-1.5  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-3  
+    f,all,fy,-g   
+    allsel,all
+    LSWR,ii
+    fdele,all,all 
+   *elseif,l_jld,gt,4.5,and,l_jld,le,6
+    cmsel,,move1
+    nsel,r,loc,x,l_jld  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-1.5  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-3  
+    f,all,fy,-g  
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-4.5  
+    f,all,fy,-g    
+    allsel,all
+    LSWR,ii
+    fdele,all,all 
+   *elseif,l_jld,gt,6,and,l_jld,le,7.5
+    cmsel,,move1
+    nsel,r,loc,x,l_jld  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-1.5  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-3  
+    f,all,fy,-g  
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-4.5  
+    f,all,fy,-g   
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-6  
+    f,all,fy,-g     
+    allsel,all
+    LSWR,ii
+    fdele,all,all
+   *elseif,l_jld,gt,7.5,and,l_jld,le,37.5
+    cmsel,,move1
+    nsel,r,loc,x,l_jld  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-1.5  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-3  
+    f,all,fy,-g  
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-4.5  
+    f,all,fy,-g   
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-6  
+    f,all,fy,-g  
+    cmsel,,move1
+    *do,hl,1,nn1,1                    !把横梁处的点去掉
+      nsel,u,loc,x,(hl-1)*ww
+    *enddo 
+    nsel,r,loc,x,0.4,l_jld-7.9 !不含两端点   
+    esln                              !选择单元   
+    SFBEAM,all,2,PRES,q1, , , , , ,    
+    allsel,all
+    LSWR,ii
+    fdele,all,all 
+    SFEDELE,ALL,2,PRES
+   *elseif,l_jld,gt,37.5
+    cmsel,,move1
+    nsel,r,loc,x,l_jld  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-1.5  
+    f,all,fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-3  
+    f,all,fy,-g  
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-4.5  
+    f,all,fy,-g   
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-6  
+    f,all,fy,-g  
+    cmsel,,move1
+    *do,hl,1,nn1,1                    !把横梁处的点去掉
+      nsel,u,loc,x,(hl-1)*ww
+    *enddo 
+    nsel,r,loc,x,0.4,l_jld-7.9        !不含两端点   
+    esln                              !选择单元   
+    SFBEAM,all,2,PRES,q1, , , , , ,    
+    cmsel,,move1
+    *do,hl,1,nn1,1                    !把横梁处的点去掉
+      nsel,u,loc,x,(hl-1)*ww
+    *enddo 
+    nsel,r,loc,x,0.4,l_jld-37.9 !不含两端点   
+    esln                              !选择单元   
+    SFBEAM,all,2,PRES,q2, , , , , ,       
+    allsel,all
+    LSWR,ii
+    fdele,all,all
+    SFEDELE,ALL,2,PRES 
+  *endif
+*enddo  
+!求解
+lssolve,1,nHzb
+finish
+

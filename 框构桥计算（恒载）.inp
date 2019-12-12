@@ -1,0 +1,250 @@
+!框构桥计算，恒载
+fini
+/clear
+/prep7
+ET,1,beam188
+mp,ex,1,2.48e7
+mp,prxy,1,0.2
+mp,dens,1,2.5
+!mp,gxy,1,30e6/2.6
+keyopt,1,3,2    !精确计算结果
+
+!ET,2,COMBIN14      !模拟土体弹性地基
+!r,2,30e3
+et,2,link10         ! 用link10模拟土体弹性地基，去掉受拉弹簧
+mp,ex,2,6e4         !k=C0*A=AE/L 故 E=C0*L C0为地基系数；L为单元长度 E为弹性模量。此处C0=30Mpa/m;L=2m
+mp,prxy,2,0.35
+r,2,0.5
+KEYOPT,2,3,1        !只能受拉
+
+type,1
+mat,1
+
+sectype,1,beam,rect     !底板截面
+secdata,0.8,1
+
+sectype,2,beam,rect     !顶板跨中截面
+secdata,0.7,1
+sectype,3,beam,rect     !顶板边跨端截面
+secdata,0.933,1
+sectype,4,beam,rect     !顶板中跨端截面
+secdata,1.183,1
+
+sectype,5,taper
+secdata,3,0,6.05
+secdata,2,0.7,6.05
+
+sectype,6,taper
+secdata,2,6.3,6.05
+secdata,3,7,6.05
+
+sectype,7,taper
+secdata,4,7,6.05
+secdata,2,8.45,6.05
+
+sectype,8,taper
+secdata,2,15.05,6.05
+secdata,4,16.5,6.05
+
+sectype,9,taper
+secdata,3,16.5,6.05
+secdata,2,17.2,6.05
+
+sectype,10,taper
+secdata,2,22.8,6.05
+secdata,3,23.5,6.05
+
+sectype,11,beam,rect     !边墙跨中截面
+secdata,0.5,1
+sectype,12,beam,rect     !中边墙顶端截面
+secdata,1,1
+sectype,13,beam,rect     !端边墙顶端截面
+secdata,0.72,1
+
+sectype,14,taper
+secdata,11,0,5.4
+secdata,13,0,6.05
+
+sectype,15,taper
+secdata,11,7,5.4
+secdata,12,7,6.05
+
+sectype,16,taper
+secdata,11,16.5,5.4
+secdata,12,16.5,6.05
+
+sectype,17,taper
+secdata,11,23.5,5.4
+secdata,13,23.5,6.05
+
+!生成板底截面单元
+secnum,1
+n,1,0
+n,48,23.5
+fill
+
+*do,i,1,47
+  e,i,i+1
+*enddo
+
+!生成板顶截面单元
+secnum,5
+n,50,0,6.05
+n,51,0.35,6.05
+n,52,0.7,6.05
+e,50,51
+e,51,52
+secnum,2
+n,63,6.3,6.05
+fill
+*do,i,52,62
+  e,i,i+1
+*enddo
+
+secnum,6
+n,64,6.65,6.05
+n,65,7,6.05
+e,63,64
+e,64,65
+
+secnum,7
+n,66,7.725,6.05
+n,67,8.45,6.05
+e,65,66
+e,66,67
+secnum,2
+n,78,15.05,6.05
+fill
+*do,i,67,77
+  e,i,i+1
+*enddo
+
+secnum,8
+n,79,15.775,6.05
+n,80,16.5,6.05
+e,78,79
+e,79,80
+
+secnum,9
+n,81,16.85,6.05
+n,82,17.2,6.05
+e,80,81
+e,81,82
+
+secnum,2
+n,92,22.8,6.05
+fill
+*do,i,82,91
+  e,i,i+1
+*enddo
+
+secnum,10
+n,93,23.15,6.05
+n,94,23.5,6.05
+e,92,93
+e,93,94
+
+!生成边墙截面单元
+secnum,11
+n,95,0,0.54
+n,105,0,5.4
+fill
+e,1,95
+*do,i,95,104
+  e,i,i+1
+*enddo
+secnum,14
+n,106,0,5.725
+e,105,106
+e,106,50
+
+secnum,11
+n,107,7,0.54
+n,117,7,5.4
+fill
+e,15,107
+*do,i,107,116
+  e,i,i+1
+*enddo
+secnum,15
+n,118,7,5.725
+e,117,118
+e,118,65
+
+secnum,11
+n,119,16.5,0.54
+n,129,16.5,5.4
+fill
+e,34,119
+*do,i,119,128
+  e,i,i+1
+*enddo
+secnum,16
+n,130,16.5,5.725
+e,129,130
+e,130,80
+
+secnum,11
+n,131,23.5,0.54
+n,141,23.5,5.4
+fill
+e,48,131
+*do,i,131,140
+  e,i,i+1
+*enddo
+secnum,17
+n,142,23.5,5.725
+e,141,142
+e,142,94
+
+!建立地基弹簧单元
+n,150,0,-2
+n,197,23.5,-2
+fill
+
+type,2
+mat,2
+real,2
+*do,i,1,48
+  e,i,149+i
+*enddo
+
+*do,i,150,197
+  d,i,uy
+*enddo
+
+d,48,ux
+
+/sol
+acel,0,10,0
+
+!顶板施加匀布荷载
+esel,s,elem,,48,91
+SFBEAM,all,2,PRES,13
+allsel,all
+!边墙施加土压力
+
+!左边墙
+
+*do,i,92,104
+  fi=5.3+(36.6-5.3)*(6.05-ny(nelem(i,1)))/6.05  !i节点压力
+  fj=5.3+(36.6-5.3)*(6.05-ny(nelem(i,2)))/6.05  !j节点压力
+  SFBEAM,i,2,PRES,fi,fj
+*enddo
+!右边墙
+
+*do,i,131,143
+  fi=5.3+(36.6-5.3)*(6.05-ny(nelem(i,1)))/6.05  !i节点压力
+  fj=5.3+(36.6-5.3)*(6.05-ny(nelem(i,2)))/6.05  !j节点压力
+  SFBEAM,i,2,PRES,-fi,-fj
+*enddo
+
+
+!底板施加匀布荷载
+esel,s,elem,,1,47
+SFBEAM,all,2,PRES,4.6
+allsel,all
+
+nropt,FULL,,      !采用牛顿-拉普森法求解
+allsel
+outres,all,all

@@ -1,0 +1,165 @@
+fini
+/clear
+
+!双线架空梁横梁检算
+/PREP7  
+!*  
+ET,1,BEAM4
+ET,2,BEAM44                     !目的在于解除钢枕与总量的I节点z弯矩
+ET,3,BEAM44                     !目的在于解除钢枕与总量的J节点z弯矩
+R,1,87200,4.26e10,7.3e8, , , ,          !主梁截面特性(双片D24纵梁)
+R,2,1.39e4,5.06e8,1.22e7, , , ,         !钢枕截面特性(50c工字钢)
+R,3,7697,2.9e7,2.9e7, , , ,             !钢轨截面特性（60钢轨）
+MP,EX,1,2.1e5                           !(Mpa 牛每平方毫米，以下力的单位亦应为牛）
+MP,PRXY,1,,0.3 
+MP,DENS,1,7.8e-6
+a1=2203       !第一根钢轨z坐标
+a2=3638       !第二根钢轨z坐标
+a3=6403       !第三根钢轨z坐标
+a4=7838       !第四根钢轨z坐标
+a5=10041       !第二根纵梁z坐标
+!
+k,1,0,0,0
+k,2,500,0,0
+lstr,1,2
+*do,ii,3,27,1
+  k,ii,500+600*(ii-2)
+  LSTR,ii-1,ii
+*enddo
+k,28,16000,0,0
+lstr,27,28
+k,31,0,0,a1
+k,32,500,0,a1
+lstr,31,32
+*do,ii,33,57,1
+  k,ii,500+600*(ii-32),0,a1
+  LSTR,ii-1,ii
+*enddo
+k,58,16000,0,a1
+lstr,57,58
+k,61,0,0,a2
+k,62,500,0,a2
+lstr,61,62
+*do,ii,63,87,1
+  k,ii,500+600*(ii-62),0,a2
+  LSTR,ii-1,ii
+*enddo
+k,88,16000,0,a2
+lstr,87,88
+k,91,0,0,a3
+k,92,500,0,a3
+lstr,91,92
+*do,ii,93,117,1
+  k,ii,500+600*(ii-92),0,a3
+  LSTR,ii-1,ii
+*enddo
+k,118,16000,0,a3
+lstr,117,118
+k,121,0,0,a4
+k,122,500,0,a4
+lstr,121,122
+*do,ii,123,147,1
+  k,ii,500+600*(ii-122),0,a4
+  LSTR,ii-1,ii
+*enddo
+k,148,16000,0,a4
+lstr,147,148
+k,151,0,0,a5
+k,152,500,0,a5
+lstr,151,152
+*do,ii,153,177,1
+  k,ii,500+600*(ii-152),0,a5
+  LSTR,ii-1,ii
+*enddo
+k,178,16000,0,a5
+lstr,177,178
+*do,ii,1,28,1
+  *do,jj,1,5,1
+    LSTR,(jj-1)*30+ii,  jj*30+ii,
+  *enddo
+*enddo
+LESIZE,ALL,100, , , ,1, , ,1,
+TYPE,   1   
+MAT,    1
+REAL,   1
+lsel,s,loc,z,0      !选择纵梁
+lsel,a,loc,z,a5  
+LMESH,all
+allsel,all 
+TYPE,   1   
+MAT,    1
+REAL,   3
+lsel,s,loc,z,a1     !选择钢轨
+lsel,a,loc,z,a2
+lsel,a,loc,z,a3
+lsel,a,loc,z,a4 
+LMESH,all
+allsel,all
+TYPE,   1   
+MAT,    1
+REAL,   2
+lsel,u,loc,z,0      !选择钢枕（不含与纵梁连接单元）
+lsel,u,loc,z,a5
+lsel,u,loc,z,a1
+lsel,u,loc,z,a2
+lsel,u,loc,z,a3
+lsel,u,loc,z,a4
+lsel,u,loc,Z,0,a1
+lsel,u,loc,Z,a4,a5  
+LMESH,all
+allsel,all
+
+KEYOPT,2,7,1
+KEYOPT,3,8,1
+TYPE,   2   
+MAT,    1
+REAL,   2
+lsel,u,loc,z,0    !选择钢枕（纵梁连接单元，解除I节点Z弯矩）
+lsel,u,loc,z,a5
+lsel,u,loc,z,a1
+lsel,u,loc,z,a2
+lsel,u,loc,z,a3
+lsel,u,loc,z,a4
+lsel,u,loc,Z,a1,a5
+LESIZE,ALL,a1, , , ,1, , ,1,
+LMESH,all
+allsel,all
+
+TYPE,   3   
+MAT,    1
+REAL,   2
+lsel,u,loc,z,0      !选择钢枕（纵梁连接单元，解除J节点Z弯矩）
+lsel,u,loc,z,a5
+lsel,u,loc,z,a1
+lsel,u,loc,z,a2
+lsel,u,loc,z,a3
+lsel,u,loc,z,a4
+lsel,u,loc,Z,0,a4
+LESIZE,ALL,a1, , , ,1, , ,1,
+LMESH,all
+allsel,all
+
+!ACEL,0,10,0           !定义重力加速度
+
+/solu
+d,318,uy,0
+d,157,uy,0
+d,1,uy,0
+d,162,uy,0
+d,1,ux,0
+d,162,ux,0
+
+hz=1.382*250000/2+2400+2622    
+
+f,875,fy,-hz
+f,884,fy,-hz
+f,905,fy,-hz
+f,714,fy,-hz
+f,723,fy,-hz
+f,744,fy,-hz
+f,553,fy,-hz
+f,562,fy,-hz
+f,583,fy,-hz
+f,392,fy,-hz
+f,401,fy,-hz
+f,422,fy,-hz

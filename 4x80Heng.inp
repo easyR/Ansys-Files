@@ -1,0 +1,108 @@
+!4X80 M 连续桁梁模型建立
+/PREP7  
+!*  
+ET,1,LINK8  
+!*  
+R,1,1, ,
+!*  
+!*  
+MPTEMP,,,,,,,,  
+MPTEMP,1,0  
+MPDATA,EX,1,,2e5
+MPDATA,PRXY,1,,0.3  
+ll=1*80               !梁全长
+hh=13.856             !桁梁高
+ww=8                  !节间长
+w_zh=5.25              !主桁中心距
+w_zl=2.2              !主梁中心距
+nn1=ll/ww+1           !一侧主桁下弦纵向节点最大编号
+!
+!以下完成单侧平面桁架单元的建立
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+n,nn1+1,ww,hh,0           !上弦第一点
+n,2*nn1-2,ll-ww,hh,0           !上弦最后一点
+fill,nn1+1,2*nn1-2
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn1+1,2*nn1-3,1      !上弦单元
+  e,ii,ii+1
+*enddo
+  e,1,nn1+1                 !第一端斜杆
+*do,ii,3,nn1-2,2            !奇数点
+  e,ii,nn1+ii-2
+  e,ii,nn1+ii-1
+  e,ii,nn1+ii
+*enddo
+  e,nn1,2*nn1-2             !最后一根端斜杆
+*do,ii,2,nn1-1,2            !偶数点，只有竖杆
+  e,ii,nn1+ii-1
+*enddo
+!以下完成另一侧平面桁架单元的建立
+mm1=2*nn1-1                  !第一点号
+mm2=mm1+nn1-1                !下弦最后一点号
+n,mm1,0,0,-w_zh              !下弦第一点
+n,mm2,ll,0,-w_zh            !下弦最后一点
+fill,mm1,mm2
+n,mm2+1,ww,hh,-w_zh            !上弦第一点
+n,mm2+nn1-2,ll-ww,hh,-w_zh           !上弦最后一点
+fill,mm2+1,mm2+nn1-2
+*DO,ii,mm1,mm2-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,mm2+1,mm2+nn1-3,1      !上弦单元
+  e,ii,ii+1
+*enddo
+  e,mm1,mm2+1                 !第一端斜杆
+*do,ii,mm1+2,mm2-2,2            !奇数点
+  e,ii,nn1+ii-2
+  e,ii,nn1+ii-1
+  e,ii,nn1+ii
+*enddo
+  e,mm2,mm2+nn1-2             !最后一根端斜杆
+*do,ii,mm1+1,mm2-1,2            !偶数点，只有竖杆
+  e,ii,nn1+ii-1
+*enddo
+!
+!建立横梁单元
+!*  
+ET,2,BEAM4  
+!*  
+R,2,1,1,1, , , ,
+TYPE,   2   
+MAT,       1
+REAL,       2   
+n_start_h=mm2+nn1-1            !第一横梁中间第一点号
+w_x=0                         !沿桁架方向坐标（x)
+js=0                          !第几个节间
+*do,ii,1,nn1,1
+  w_x=js*ww
+  n,n_start_h,w_x,0,-(w_zh-w_zl)/2
+  n,n_start_h+1,w_x,0,-(w_zh+w_zl)/2
+  e,ii,n_start_h
+  e,n_start_h,n_start_h+1
+  e,n_start_h+1,2*nn1+ii-2
+  n_start_h=n_start_h+2
+  js=js+1
+*enddo
+!建立纵梁模型
+js=0
+*Do,ii,1,2*(nn1-1)-1,2                        !第一主梁
+  k,ii,js*ww,0,-(w_zh-w_zl)/2
+  k,ii+1,(js+1)*ww,0,-(w_zh-w_zl)/2
+  l,ii,ii+1
+  js=js+1
+*ENDDO
+js=0
+*Do,ii,2*nn1-1,4*nn1-4,2                     !第二主梁
+  k,ii,js*ww,0,-(w_zh+w_zl)/2
+  k,ii+1,(js+1)*ww,0,-(w_zh+w_zl)/2
+  l,ii,ii+1
+  js=js+1
+*ENDDO
+
+  
+
+

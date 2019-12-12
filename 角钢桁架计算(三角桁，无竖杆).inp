@@ -1,0 +1,59 @@
+fini
+/clear
+!角钢桁架计算(三角桁，无竖杆)
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1  
+
+
+R,1,7.38e-4     !弦杆
+R,2,7.38e-4      !腹杆
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3
+MPDATA,DENS,1,,17.7   !7.8   !通过修改支架密度把荷载计入
+TYPE,1  
+MAT,1
+REAL,1
+ll=22              !梁全长
+hh=0.9                 !桁梁高
+ww=0.5                  !节间长（半节间）
+nn1=nint(ll/(2*ww))+1           !一侧主桁下弦纵向节点最大编号
+!
+!以下完成单侧平面桁架单元的建立
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+
+n,nn1+1,ww,hh,0           !上弦第一点
+n,2*nn1-1,ll-ww,hh,0          !上弦最后一点
+fill,nn1+1,2*nn1-1
+
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn1+1,2*nn1-2,1      !上弦单元
+  e,ii,ii+1                 
+*enddo
+
+!腹杆单元
+real,2
+*do,ii,nn1+1,2*nn1-1,1            !斜杆
+  e,ii,ii-nn1
+  e,ii,ii-nn1+1
+*enddo
+
+/solu
+                 !约束，可根据实际情况增加约束
+D,1,UY
+D,nn1,uy
+D,nn1,ux
+
+ACEL,,10             !施加y方向重力加速度
+
+solve
+
+/POST1  
+etable,yl,ls,1     !杆件应力

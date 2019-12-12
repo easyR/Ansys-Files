@@ -1,0 +1,107 @@
+fini
+/clear
+!单排桩基础计算，M法,已验算通过
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,BEAM3 !桩单元
+ET,2,COMBIN14  !土单元
+
+!*  
+!*  
+!*  
+    !已知条件
+ZQC=17      !桩全长，承台以下桩长
+ZC0=10.31      !桩埋入长，地面或冲刷线下桩长
+H0=105.038      !水平力
+M0=-441.037      !力矩
+zdys=21     !桩单元数量
+ee=2.7e7    !桩弹性模量
+b0=1.61      !桩计算宽度0.9*(d+1)
+dd=1.2      !桩直径
+mm=70000     !地基系数比例系数
+
+aa=3.1415926*dd*dd/4        !桩截面面积
+zI=3.1415926*dd*dd*dd*dd/64  !桩截面惯性矩
+
+R,1,aa,zI,0,0,0,0,   !桩实常数
+MPTEMP,,,,,,,,  
+MPTEMP,1,0  
+MPDATA,EX,1,,0.8*ee   !桩弹性模量E=0.8Eh
+MPDATA,PRXY,1,,0.3 
+
+   !建立桩单元
+dyl=zc0/(zdys-1)    !桩单元长
+n,1,0,ZQC,0       !桩顶节点 
+n,2,0,ZC0,0       !地面节点            
+n,zdys+1,0,0,0    !桩底节点            
+fill,2,zdys+1
+
+TYPE,1  
+MAT,1
+REAL,1
+*do,i,1,zdys,1
+  e,i,i+1
+*enddo
+
+      !建立土单元
+n,zdys+2,1,ZC0    !顶节点
+n,2*zdys+1,1,0    !底节点
+fill,zdys+2,2*zdys+1
+
+TYPE,2  
+!*DIM,KK,ARRAY,17      ! 定义土单元实常数 
+*do,ii,2,zdys+1,1
+ !   *SET,kk(ii) , 8000*1.8*(ii-1)
+    r,ii, mm*b0*(ii-2)*DYL*DYL    !mm为地基系数的比例系数m值  
+*enddo
+
+*do,i,2,zdys+1,1
+  real,i
+  e,i,i+zdys
+*enddo
+
+/solu
+*do,i,zdys+2,2*zdys+1,1
+  D,i,UY,0
+  D,i,ux,0
+*enddo
+  
+
+F,1,FX,H0   
+F,1,MZ,-M0 
+
+solve
+/POST1 
+etable,mz,smisc,6
+etable,my,smisc,12
+etable,qz,smisc,2
+etable,qy,smisc,8
+etable,zl,smisc,1
+
+*dim,Fai,array,zdys   !单元转角
+*dim,xx,array,zdys+1  !节点位移
+*dim,yy,array,zdys+1
+
+*do,ii,1,zdys+1,1
+xx(ii)=ux(ii)
+yy(ii)=uy(ii)
+*enddo
+Fai(1)=ATAN2(xx(1)-xx(2),zqc-zc0)
+*do,ii,2,zdys,1
+Fai(ii)=ATAN2(xx(ii)-xx(ii+1),dyl)
+*enddo
+
+/Post1
+
+         *CREATE,ansuitmp
+
+
+*CFOPEN,fau,txt
+*Vwrite,fai(1)
+(F10.6) 
+*CFclos
+
+/INPUT,ansuitmp  
+
+(F16.8,' ',F16.8,' ',F16.8,)  

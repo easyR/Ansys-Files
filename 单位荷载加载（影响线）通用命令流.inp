@@ -1,0 +1,57 @@
+!单位荷载加载命令流
+/solu
+
+x0=0                           !从0开始加载
+x1=324
+LHY=0                   !加载平面的竖向坐标
+D_l=12                         !单位荷载移动步长
+nHzb=nint((x1-x0)/D_l+0.5)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0                         !单位荷载移动位置
+
+*do,ii,1,nHzb,1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+      *if,xx,gt,x1,then
+        *exit
+      *endif    
+  nsel,s,node,,node(xx,LHY,0) 
+  esln
+  *get,emin,elem,,num,min
+  ee=emin        
+  edy=0                     !先给荷载单元赋值 
+  ecount=elmiqr(0,13)      
+  *do,nn,1,ecount
+      ye1= ny(nelem(ee,1))    !单元节点坐标  
+      ye2= ny(nelem(ee,2))
+      xe1= nx(nelem(ee,1))
+      xe2= nx(nelem(ee,2))
+      *if,abs(ye1-ye2),le,1e-6,and,(xx-xe1)*(xx-xe2),le,0,then
+          edy=ee
+      *endif
+      ee=elnext(ee)                            
+  *enddo
+      cc=abs(nx(nelem(edy,1))-nx(nelem(edy,2)))          !单元x方向长
+      aa=abs(nx(nelem(edy,1))-xx)                       !I节点距荷载长度
+      bb=abs(nx(nelem(edy,2))-xx)                       !J节点距荷载长度
+      hzi=1*bb/cc                           !I节点等效荷载
+      hzj=1*aa/cc                           !j节点等效荷载
+
+      allsel,all,all
+      f,nelem(edy,1),fy,-hzi
+      f,nelem(edy,2),fy,-hzj
+  
+  hzwz(ii)=xx                    !将荷载的实际位置存入数组
+  solve
+  xx=xx+D_l 
+*enddo
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos

@@ -1,0 +1,106 @@
+/com ** ========================================================================
+/com ** 
+/com **  Piezo-fsi 3D layered / CFX_fluid --> ansys file to get cdb file for cfx
+/com **
+/com ** =======================================================================
+
+mesh=1
+*if,mesh,eq,1,then
+
+seltol,1.0e-6				!Selection tolerance
+
+/prep7
+
+/com
+/com -- Element types
+/com
+et,3,fluid142,,,,1	!3D Fluid element with diplacement DOF option
+et,4,mesh200,6		!Mesh only element (3D quad 4 nodes) to mesh surfaces used in CFXpre
+
+/com
+/com -- Fluid domain geometry
+/com
+block,,2.5e-3,,0.2e-3,,0.1e-3
+k,9,2.8e-3
+k,10,2.8e-3,0.02e-3
+k,11,2.8e-3,,0.1e-3
+k,12,2.8e-3,0.02e-3,0.1e-3
+v,6,11,9,4,7,12,10,3
+block,2.8e-3,2.9e-3,,0.02e-3,,0.1e-3
+vglue,1,2,3
+
+/com
+/com -- Meshing
+/com
+allsel			!Fluid domain meshing
+type,3
+mat,3
+esize,4e-5
+mshape,1,3d		!Volume mesh using Tet.
+mshkey,0		!Free meshing
+vmesh,all
+allsel
+
+asel,s,,,4		!FSI interface surface mesh		
+type,4			!with mesh only elements
+amesh,all
+allsel,below,area
+cm,fsi,elem		!Create component named fsi
+allsel
+
+asel,s,,,5		!Opening surface mesh
+type,4			!with mesh only elements
+amesh,all
+allsel,below,area
+cm,pipe,elem		!Create component named pipe
+allsel
+
+asel,s,,,1		!Side1 and side2 surface mesh
+asel,a,,,10		!with mesh only elements
+asel,a,,,21
+type,4
+amesh,all
+allsel,below,area
+cm,side1,elem		!Create component named side1
+allsel	
+asel,s,,,2
+asel,a,,,8
+asel,a,,,19
+type,4
+amesh,all
+allsel,below,area
+cm,side2,elem		!Create component named side2 
+allsel
+
+asel,s,,,11		!Top surface mesh
+asel,a,,,20		!with mesh only elements
+type,4
+amesh,all
+allsel,below,area
+cm,top,elem		!Create component named top
+allsel
+
+asel,s,,,3		!Bottom surface mesh
+asel,a,,,7		!with mesh only elements
+asel,a,,,18
+type,4
+amesh,all
+allsel,below,area
+cm,bottom,elem		!Create component named bottom
+allsel
+
+asel,s,,,17		!Opening surface mesh
+type,4			!with mesh only elements
+amesh,all
+allsel,below,area
+cm,opening,elem		!Create component named opening
+allsel
+save
+
+cdwrite,db,fluid,cdb	!Create fluid.cdb file for CFXpre
+*else
+cdread,db,fluid,cdb
+*endif
+finish
+
+

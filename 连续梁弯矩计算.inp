@@ -1,0 +1,129 @@
+!连续梁计算（计算弯矩、剪力，支座反力，按照中活载计算）
+/PREP7  
+!*  
+ET,1,BEAM3  
+R,1,46280,7.87e9,3.12e8, , , ,         !主梁截面特性(1m工字钢)
+MP,EX,1,2.1e5  
+MP,PRXY,1,,0.3 
+!MP,DENS,1,7.8e-6
+
+hz=41.4/2  !(恒载 kn/m)
+lc=15   !(梁长：m)
+k,1,0,0
+k,2,lc,0
+lstr,1,2
+
+dc=0.1            !单元长0.1
+lesize,all,dc        !单元网格，单元长0.1
+lmesh,all
+
+!求解
+/solu
+!先手工选择约束
+
+t=1.45                !冲击系数
+g=t*220/2              !集中荷载（kN）
+q1=t*92/2+hz
+q2=t*80/2+hz
+nHzb=lc/dc+1            !荷载总步数，单元长0.1
+nsel,s,loc,y,0
+cm,move1,node     !保存运动轨迹
+allsel,all
+
+Delt_Time=dc/(5*5/18)      !通过每单元的时间（V=5km/h）
+*do,ii,1,nHzb,1
+l_jld=(ii-1)*dc            !第一轴距梁端距离
+  TIME,ii*Delt_Time     !结束时间
+  KBC,0                 !台阶加载
+  NSUBST,5              !子步数为五
+
+  SFBEAM,all,1,PRES,hz, , , , , ,     !施加恒载
+  *if,l_jld,le,1.5,then
+    f,NODE(l_jld,0,0),fy,-g
+    *if,l_jld,eq,1.5,then
+      f,NODE(0,0,0),fy,-g
+    *endif      
+  allsel,all
+
+  *elseif,l_jld,gt,1.5,and,l_jld,le,3
+    f,NODE(l_jld,0,0),fy,-g
+    f,NODE(l_jld-1.5,0,0),fy,-g
+     *if,l_jld,eq,3,then
+      f,NODE(0,0,0),fy,-g
+    *endif      
+  allsel,all
+
+  *elseif,l_jld,gt,3,and,l_jld,le,4.5
+    f,NODE(l_jld,0,0),fy,-g
+    f,NODE(l_jld-1.5,0,0),fy,-g
+    f,NODE(l_jld-3,0,0),fy,-g
+    *if,l_jld,eq,4.5,then
+      f,NODE(0,0,0),fy,-g
+    *endif         
+  allsel,all
+
+   *elseif,l_jld,gt,4.5,and,l_jld,le,6
+    f,NODE(l_jld,0,0),fy,-g
+    f,NODE(l_jld-1.5,0,0),fy,-g
+    f,NODE(l_jld-3,0,0),fy,-g
+     f,NODE(l_jld-4.5,0,0),fy,-g
+    *if,l_jld,eq,6,then
+      f,NODE(0,0,0),fy,-g
+     *endif              
+  allsel,all
+  
+   *elseif,l_jld,gt,6,and,l_jld,le,7.5
+    f,NODE(l_jld,0,0),fy,-g
+    f,NODE(l_jld-1.5,0,0),fy,-g
+    f,NODE(l_jld-3,0,0),fy,-g
+    f,NODE(l_jld-4.5,0,0),fy,-g
+    f,NODE(l_jld-6,0,0),fy,-g
+  allsel,all
+   
+   *elseif,l_jld,gt,7.5,and,l_jld,le,37.5
+    f,NODE(l_jld,0,0),fy,-g
+    f,NODE(l_jld-1.5,0,0),fy,-g
+    f,NODE(l_jld-3,0,0),fy,-g
+    f,NODE(l_jld-4.5,0,0),fy,-g
+    f,NODE(l_jld-6,0,0),fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-7.5
+    esln
+    *get,emax1,elem,,num,min
+    allsel,all
+    esel,s,elem,,1,emax1
+    SFBEAM,all,1,PRES,q1, , , , , ,    
+     
+   *elseif,l_jld,gt,37.5
+    f,NODE(l_jld,0,0),fy,-g
+    f,NODE(l_jld-1.5,0,0),fy,-g
+    f,NODE(l_jld-3,0,0),fy,-g
+    f,NODE(l_jld-4.5,0,0),fy,-g
+    f,NODE(l_jld-6,0,0),fy,-g
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-7.5
+    esln
+    *get,emax1,elem,,num,min
+    allsel,all    
+    cmsel,,move1
+    nsel,r,loc,x,l_jld-37.5
+    esln
+    *get,emax2,elem,,num,max   
+    allsel,all
+    esel,s,elem,,emax2,emax1
+    SFBEAM,all,1,PRES,q1, , , , , , 
+ 
+    allsel,all
+    esel,s,elem,,1,emax2-1
+    SFBEAM,all,1,PRES,q2, , , , , ,       
+ 
+  *endif
+  
+ allsel,all 
+  solve           !LSWR,ii
+  fdele,all,all
+  SFEDELE,ALL,1,PRES   
+*enddo  
+!求解
+!lssolve,1,nHzb
+finish

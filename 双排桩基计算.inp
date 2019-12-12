@@ -1,0 +1,233 @@
+fini
+/clear
+!二排桩基础计算，M法,已验算通过
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,BEAM3 !桩单元，承台
+ET,2,COMBIN14  !土及摩擦单元
+
+!*  
+!*  
+!*  
+    !已知条件
+ZQC=29      !桩全长，承台以下桩长
+ZC0=23.5      !桩埋入长，地面或冲刷线下桩长
+H0=295.4/3           !水平力
+M0=4839.3/3      !力矩
+N0=-11975/3      !竖直力
+p0=2241       !单桩极限承载力
+pd=108        !桩底地基极限承载力
+mm0=0.5        !桩底清底系数
+
+ee=2.7e7    !桩弹性模量
+b0=1.58      !桩计算宽度0.9*(d+1)k
+dd=1.0      !桩直径
+zzx=3.5     !桩中心距
+mm=10000     !地基系数比例系数
+ctl=6         !承台长(两桩平面方向)
+ctb=2         !承台宽（桩范围宽度）
+cth=6         !承台高
+DYn=40       !桩单元数（土中单元）
+A0=9.62     !桩底计算面积(建议采用桩设计断面面积)
+
+dyl=ZC0/dyn       !桩单元长（土中单元）
+
+cta=ctb*cth       !承台截面积
+cti=ctb*cth**4/6   !承台截面惯性矩
+
+!建立承台单元
+MPTEMP,,,,,,,,  
+MPTEMP,1,0  
+MPDATA,EX,1,,ee
+MPDATA,PRXY,1,,0.3
+r,1,cta,cti
+type,1
+mat,1
+real,1
+n,1,ctl/2,zqc     !承台中心点
+n,2,0,zqc         !承台左
+n,3,ctl,zqc       !承台右
+zzx0=ctl/2-zzx/2  !左桩x坐标
+yzx0=ctl/2+zzx/2  !右桩x坐标
+n,4,zzx0,zqc     !左桩
+n,5,yzx0,zqc     !右桩
+e,4,2
+e,1,4
+e,5,1
+e,3,5
+
+
+!建立桩单元
+aa=3.1415926*dd*dd/4        !桩截面面积
+zI=3.1415926*dd**4/64        !桩截面惯性矩
+
+MPDATA,EX,2,,0.8*ee   !桩弹性模量E=0.8Eh
+MPDATA,PRXY,2,,0.3 
+R,2,aa,zI,0,0,0,0,   !桩实常数
+
+type,1
+mat,2
+real,2
+
+!左桩
+n,6,zzx0,ZC0       !桩地面节点 
+n,dyn+6,zzx0,0,0    !桩底节点            
+fill,6,dyn+6
+e,4,6
+*do,i,6,dyn+5,1
+  e,i,i+1
+*enddo
+
+!右桩
+ydjd=dyn+7          !右桩地面节点号
+n,ydjd,yzx0,ZC0       !桩地面节点 
+n,dyn+ydjd,yzx0,0,0    !桩底节点            
+fill,ydjd,dyn+ydjd
+e,5,ydjd
+*do,i,ydjd,dyn+ydjd-1,1
+  e,i,i+1
+*enddo
+
+!建立土单元
+!左桩
+tdyd_z=dyn+ydjd+1
+n,tdyd_z,zzx0+1,ZC0    !顶节点
+n,tdyd_z+dyn,zzx0+1,0    !底节点
+fill,tdyd_z,tdyd_z+dyn
+
+!右桩
+tdyd_y=tdyd_z+dyn+1
+n,tdyd_y,yzx0+1,ZC0    !顶节点
+n,tdyd_y+dyn,yzx0+1,0    !底节点
+fill,tdyd_y,tdyd_y+dyn
+
+TYPE,2  
+! 定义土单元实常数 
+*do,ii,3,dyn+3,1
+    r,ii, mm*b0*(ii-3)*DYL*DYL    !mm为地基系数的比例系数m值  
+*enddo
+
+*do,i,3,dyn+3,1
+  real,i
+  e,3+i,tdyd_z-3+i
+  e,ydjd-3+i,tdyd_y-3+i
+*enddo
+
+!桩底弹簧单元
+*if,zc0,ge,10,then      !如果桩长大于等于10
+  c0=mm*zc0 
+*else
+  c0=10*mm         !地基系数
+*endif
+
+!k0=c0*aa            !弹性系数
+dd0=p0/(a0*c0)                               !桩底极限位移
+k0=pd/dd0             !桩底弹性系数
+
+n,tdyd_y+dyn+1,zzx0,-1     !左桩底弹簧
+n,tdyd_y+dyn+2,yzx0,-1     !右桩底弹簧
+r,dyn+4,k0
+real,dyn+4
+e,dyn+6,tdyd_y+dyn+1
+e,dyn+ydjd,tdyd_y+dyn+2
+
+!建立摩擦单元
+!左
+mdyd_z=tdyd_y+dyn+3     !左摩擦单元节点号
+n,mdyd_z,zzx0,zc0-0.5
+n,mdyd_z+dyn,zzx0,-0.5
+fill,mdyd_z,mdyd_z+dyn
+!右
+mdyd_y=mdyd_z+dyn+1     !右摩擦单元节点号
+n,mdyd_y,yzx0,zc0-0.5
+n,mdyd_y+dyn,yzx0,-0.5
+fill,mdyd_y,mdyd_y+dyn
+
+mrn=dyn+5         !摩擦单元实常数起始编号
+
+! 定义摩擦单元实常数 
+ff=(p0-pd)/zc0   !-pd*mm0*aa)/zc0      !单位长度摩擦力
+!dd0=pd/k0                               !桩底极限位移
+ddl=0.5*p0*zc0/(ee*aa)+p0/(a0*c0)         !地面处桩竖向位移
+*dim,zwy,array,dyn+1
+zdy=0               !桩底坐标
+*do,ii,mrn,dyn+mrn,1
+!      ddy=0
+!      jsdy=dyn+mrn          !计算单元编号
+ !     zddy=dyn+mrn          !桩底单元编号
+ !     *do,kk,ii,dyn+mrn,1
+!         ddy=ddy+((pd+ff*(zddy-jsdy+1)*dyl)*dyl/(aa*ee))
+!           
+!           jsdy=jsdy-1     
+!      *enddo
+    dyy=zc0-(ii-mrn)*dyl        !桩计算单元顶面y坐标
+    ddy=dd0+(dyy-zdy)*(ddl-dd0)/zc0           !   ddy=ddl-0.5*p0*(ii-mrn)*dyl/(ee*aa)
+    zwy(ii-mrn+1)=ddy
+    ky=ff*dyl/ddy       !摩擦单元弹性系数
+    r,ii, ky      
+*enddo
+*do,i,1,dyn+1,1
+  real,mrn-1+i
+  e,5+i,mdyd_z-1+i
+  e,ydjd-1+i,mdyd_y-1+i
+*enddo
+
+
+/solu
+*do,i,1,dyn+1,1
+  D,tdyd_z-1+i,UY,0
+  D,tdyd_z-1+i,ux,0
+  D,tdyd_y-1+i,UY,0
+  D,tdyd_y-1+i,ux,0
+  D,mdyd_z-1+i,UY,0
+  D,mdyd_z-1+i,ux,0
+  D,mdyd_y-1+i,UY,0
+  D,mdyd_y-1+i,ux,0  
+*enddo
+D,tdyd_y+dyn+1,uy,0
+D,tdyd_y+dyn+1,ux,0
+D,tdyd_y+dyn+2,uy,0
+D,tdyd_y+dyn+2,ux,0
+
+
+
+F,1,FX,H0   
+F,1,MZ,-M0 
+F,1,fy,N0
+
+solve
+/POST1 
+etable,mz,smisc,6
+etable,my,smisc,12
+etable,qz,smisc,2
+etable,qy,smisc,8
+etable,zl,smisc,1
+esel,s,real,,2
+
+*dim,Fai,array,zdys   !单元转角
+*dim,xx,array,zdys+1  !节点位移
+*dim,yy,array,zdys+1
+
+*do,ii,1,zdys+1,1
+xx(ii)=ux(ii)
+yy(ii)=uy(ii)
+*enddo
+Fai(1)=ATAN2(xx(1)-xx(2),zqc-zc0)
+*do,ii,2,zdys,1
+Fai(ii)=ATAN2(xx(ii)-xx(ii+1),dyl)
+*enddo
+
+/Post1
+
+         *CREATE,ansuitmp
+
+
+*CFOPEN,fau,txt
+*Vwrite,fai(1)
+(F10.6) 
+*CFclos
+
+/INPUT,ansuitmp  
+
+(F16.8,' ',F16.8,' ',F16.8,)  

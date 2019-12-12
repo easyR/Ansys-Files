@@ -1,0 +1,152 @@
+!1米大工字钢架空
+
+fini
+/clear
+/prep7
+L=16 !纵梁跨度
+B=4.16 !纵梁中心距
+a=0.5  !横梁中心距
+g=1.505  !钢轨中心距
+
+ET,1,BEAM188
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+
+MPDATA,DENS,1,,7.8
+
+SECTYPE,1,BEAM,I  !纵梁
+SECDATA,0.36,0.36,1.0,0.04,0.04,0.019
+!SECOFFSET,USER,0,0   !截面偏移到底部
+
+SECTYPE,2,BEAM,I   !钢枕
+SECDATA,0.2,0.2,0.2,0.016,0.016,0.01
+SECOFFSET,USER,0,0.2 !截面偏移到顶部
+
+!钢轨截面，钢轨截面gg已经提前处理好
+sectype,3,beam,mesh  !指定读入的截面类型在后面使用中编号
+secoffset,user,0,0   !指定截面在梁纵轴上的偏移量
+secread,'gg','sect',,mesh !读入截面
+
+K,1
+K,2,L
+K,3,,,-B
+K,4,L,,-B
+L,1,2
+L,3,4
+
+k,1000,,10          !单元方向点
+k,1001,,10,-B       !单元方向点
+lsel,,,,1
+latt,1,,1,,1000,,1   !1000点及1线指明单元x,z轴平面方向。1号材料，实常数空，1号单元，几何点1000定单元方向
+
+lsel,,,,2
+latt,1,,1,,1001,,1   !1点及2线指明单元x,z轴平面方向
+allsel
+
+! 建立大工字钢模型
+
+N=nint(L/a)  !每钢枕之间1个单元
+a=L/N        !实际a值
+lesize,all,,,N
+LMESH,all
+
+!创建钢轨节点
+NMAX=NDINQR(0,14)    !取得目前最大节点编号
+z1=-B/2+g/2          !一侧钢轨z坐标
+z2=-B/2-g/2
+*do,I,1,N+1,1
+  x=nx(I)          !取得主梁节点x坐标
+  n,2*I-1+NMAX,x,,z1
+  n,2*I+NMAX,x,,z2
+*enddo
+
+!创建横梁单元
+
+NMAX=NDINQR(0,14)    !取得目前最大节点编号
+secnum,2        !2号截面
+*do,I,1,N+1,1
+  x=nx(I)          !取得主梁节点x坐标
+  nn=I+NMAX
+  N,nn,x,10,0      !nn为每根钢枕的定向
+  e,node(x,0,0),node(x,0,z1),nn
+  e,node(x,0,z1),node(x,0,z2),nn
+  e,node(x,0,z2),node(x,0,-B),nn
+*enddo
+
+!创建钢轨单元
+NMAX=NDINQR(0,14)    !取得目前最大节点编号
+nn1=NMAX+1           !钢轨定向节点编号
+nn2=NMAX+2
+N,nn1,0,10,z1        !第一定向节点
+N,nn2,0,10,z2        !第二定向节点
+secnum,3
+*do,I,1,N,1
+  x1=(I-1)*a          !前一点x坐标
+  x2=I*a              !后一点x坐标
+ 
+  e,node(x1,0,z1),node(x2,0,z1),nn1   !第一根钢轨
+  e,node(x1,0,z2),node(x2,0,z2),nn2
+*enddo
+
+/solu
+                 !约束，可根据实际情况增加约束
+GD=node(0,0,0)    !固定支座
+HH=node(0,0,-B)   !横向活动支座
+ZH=node(L,0,0)   !纵向活动支座
+DX=node(L,0,-B)   !多向活动支座
+
+D,GD,UY
+D,GD,UX
+D,GD,UZ
+
+D,HH,UY
+D,HH,UX
+
+D,ZH,UY
+D,ZH,UZ
+
+D,DX,UY
+
+acel,0,7.8  !重力加速度
+
+!施加荷载求影响线
+!加载
+/solu
+
+x0=0                           !从0开始加载
+x1=L
+LHY=0                  !加载平面的竖向坐标
+D_l=a                        !单位荷载移动步长
+nHzb=nint((x1-x0)/D_l)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0                         !单位荷载移动位置
+
+*do,ii,1,nHzb,1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+      *if,xx,gt,x1,then
+        *exit
+      *endif    
+ 
+  F,node(xx,LHY,z1),fy,-0.5
+  F,node(xx,LHY,z2),fy,-0.5
+    
+  hzwz(ii)=xx                    !将荷载的实际位置存入数组
+  solve
+  xx=xx+D_l 
+*enddo
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos
+
+
+/ESHAPE,1  !打开形状

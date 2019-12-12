@@ -1,0 +1,174 @@
+fini
+/clear
+!西安局流水河钢梁桥计算模型(2x64 影响线)，第二联
+!图号：焊-1
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1  
+
+
+R,1,0.01836     !不同杆件截面积
+R,2,0.02264
+R,3,0.015791
+R,4,0.014919
+R,5,0.0106
+R,6,0.024992
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+TYPE,1  
+MAT,1
+REAL,1
+ll=2*64             !梁全长
+hh=11                 !桁梁高
+ww=8                  !节间长
+nn1=ll/ww+1           !一侧主桁下弦纵向节点最大编号
+!
+!以下完成单侧平面桁架单元的建立
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+n,nn1+1,ww,hh,0           !上弦第一点
+n,2*nn1-2,ll-ww,hh,0           !上弦最后一点
+fill,nn1+1,2*nn1-2
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn1+1,2*nn1-3,1      !上弦单元
+  e,ii,ii+1
+*enddo
+  e,1,nn1+1                 !第一端斜杆
+*do,ii,3,nn1-2,2            !奇数点
+  e,ii,nn1+ii-2
+  e,ii,nn1+ii-1
+  e,ii,nn1+ii
+*enddo
+  e,nn1,2*nn1-2             !最后一根端斜杆
+*do,ii,2,nn1-1,2            !偶数点，只有竖杆
+  e,ii,nn1+ii-1
+*enddo
+
+!选择单元
+esel,s,,,19,20
+esel,a,,,27,28
+esel,a,,,38
+esel,a,,,46
+!改变实常数（截面积）
+emodif,all,real,2
+
+esel,all
+esel,s,,,23,24
+esel,a,,,40
+esel,a,,,44
+emodif,all,real,3
+
+esel,all
+esel,s,,,1,2
+esel,a,,,15,16
+esel,a,,,32
+esel,a,,,35
+esel,a,,,37
+esel,a,,,47
+esel,a,,,49
+esel,a,,,52
+emodif,all,real,4
+
+esel,all
+esel,s,,,54,61
+esel,a,,,33,51,3
+emodif,all,real,5
+
+esel,all
+esel,s,,,41
+esel,a,,,43
+esel,a,,,31
+esel,a,,,53
+emodif,all,real,6
+
+
+esel,all
+
+/solu
+                 !约束，可根据实际情况增加约束
+D,1,UY
+D,9,UY
+D,17,UY
+D,17,UX
+
+!施加荷载
+!加载
+
+x0=0                           !从-1.0开始加载
+x1=128
+LHY=0                  !加载平面的竖向坐标
+D_l=8                         !单位荷载移动步长
+nHzb=nint((x1-x0)/D_l+0.5)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0                         !单位荷载移动位置
+
+*do,ii,1,nHzb,1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+      *if,xx,gt,x1,then
+        *exit
+      *endif    
+  nsel,s,node,,node(xx,LHY,0) 
+  esln
+  *get,emin,elem,,num,min
+  ee=emin        
+  edy=0                     !先给荷载单元赋值 
+  ecount=elmiqr(0,13)      
+  *do,nn,1,ecount
+      ye1= ny(nelem(ee,1))    !单元节点坐标  
+      ye2= ny(nelem(ee,2))
+      xe1= nx(nelem(ee,1))
+      xe2= nx(nelem(ee,2))
+      *if,abs(ye1-ye2),le,1e-6,and,(xx-xe1)*(xx-xe2),le,0,then
+          edy=ee
+      *endif
+      ee=elnext(ee)                            
+  *enddo
+      cc=abs(nx(nelem(edy,1))-nx(nelem(edy,2)))          !单元x方向长
+      aa=abs(nx(nelem(edy,1))-xx)                       !I节点距荷载长度
+      bb=abs(nx(nelem(edy,2))-xx)                       !J节点距荷载长度
+      hzi=1*bb/cc                           !I节点等效荷载
+      hzj=1*aa/cc                           !j节点等效荷载
+
+      allsel,all,all
+      f,nelem(edy,1),fy,-hzi
+      f,nelem(edy,2),fy,-hzj
+  
+  hzwz(ii)=xx                    !将荷载的实际位置存入数组
+  solve
+  xx=xx+D_l 
+*enddo
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos
+
+!取得影响线表
+ /POST26 
+ESOL,2,1,1,smisc,1,E0E1 
+ESOL,3,4,4,smisc,1,E3E4 
+ESOL,4,8,8,smisc,1,E7E8
+ESOL,5,19,20,smisc,1,A3A4
+ESOL,6,23,24,smisc,1,A7A8
+ESOL,7,31,1,smisc,1,E0A1
+ESOL,8,32,3,smisc,1,E2A1
+ESOL,9,35,20,smisc,1,E4A3
+ESOL,10,40,7,smisc,1,E6A7
+ESOL,11,41,9,smisc,1,E8A7
+ESOL,12,55,4,smisc,1,E3A3
+
+nsol,13,3,u,y,E2y
+nsol,14,5,u,y,E4y
+nsol,15,1,u,x,E0x

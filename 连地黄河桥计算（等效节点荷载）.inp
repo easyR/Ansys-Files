@@ -1,0 +1,224 @@
+fini
+/clear
+!连地黄河大桥计算模型(检测荷载，等效荷载法，不建纵梁模型)
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1  
+R,1,0.03389, ,   !不同杆件截面积
+R,2,0.02672, ,
+R,3,0.02114, ,
+R,4,0.03224, ,
+R,5,0.03198, ,
+R,6,0.0154, ,
+R,7,0.01976, ,
+R,8,0.02499, ,
+R,9,0.02157, ,
+R,10,0.03526, ,
+R,11,0.02344, ,
+R,12,0.0106, ,
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+MPDATA,DENS,1,,7.8         !定义材料密度，和加速度配合
+TYPE,1  
+MAT,1
+REAL,2
+ll=3*80              !梁全长
+hh=11                 !桁梁高
+ww=8                  !节间长
+nn1=ll/ww+1           !一侧主桁下弦纵向节点最大编号
+!ACEL,,10             !施加y方向重力加速度，本计算不施加
+!
+!以下完成单侧平面桁架单元的建立
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+n,nn1+1,ww,hh,0           !上弦第一点
+n,2*nn1-2,ll-ww,hh,0           !上弦最后一点
+fill,nn1+1,2*nn1-2
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn1+1,2*nn1-3,1      !上弦单元
+  e,ii,ii+1
+*enddo
+  e,1,nn1+1                 !第一端斜杆
+*do,ii,3,nn1-2,2            !奇数点
+  e,ii,nn1+ii-2
+  e,ii,nn1+ii-1
+  e,ii,nn1+ii
+*enddo
+  e,nn1,2*nn1-2             !最后一根端斜杆
+*do,ii,2,nn1-1,2            !偶数点，只有竖杆
+  e,ii,nn1+ii-1
+*enddo
+
+!选择单元
+esel,s,,,1,2
+esel,a,,,9,12
+esel,a,,,19,22
+esel,a,,,29,30
+!改变实常数（截面积）
+emodif,all,real,1
+esel,all
+esel,s,,,15,16
+esel,a,,,37,38
+esel,a,,,41,42
+esel,a,,,47,48
+esel,a,,,51,52
+emodif,all,real,3
+
+esel,all
+esel,s,,,33,36
+esel,a,,,39,40
+esel,a,,,49,50
+esel,a,,,53,56
+emodif,all,real,4
+
+esel,all
+emodif,59,real,5
+emodif,74,real,5
+emodif,87,real,5
+emodif,102,real,5
+emodif,60,real,6
+emodif,63,real,6
+emodif,65,real,6
+emodif,96,real,6
+emodif,98,real,6
+emodif,101,real,6
+emodif,62,real,7
+emodif,66,real,7
+emodif,77,real,7
+emodif,80,real,7
+emodif,81,real,7
+emodif,84,real,7
+emodif,95,real,7
+emodif,99,real,7
+emodif,68,real,8
+emodif,69,real,8
+emodif,78,real,8
+emodif,83,real,8
+emodif,92,real,8
+emodif,93,real,8
+emodif,71,real,9
+emodif,75,real,9
+emodif,86,real,9
+emodif,90,real,9
+emodif,72,real,10
+emodif,89,real,10
+
+esel,all
+esel,s,,,61,100,3
+emodif,all,real,11
+
+esel,all
+esel,s,,,103,117
+emodif,all,real,12
+esel,all
+
+/solu
+D,1,UX                    !约束，可根据实际情况增加约束
+D,1,UY 
+D,11,UY
+D,21,UY
+D,nn1,UY
+!施加荷载
+
+D_l=0.5!0.5                     !每0.5m施加荷载一次
+jz_x1=0                       !加载位置起点x坐标（必须为节点）
+hz_l=78.28                   !荷载长度，如果是局部加载，此值应相应调整
+jz_x2=240+hz_l                      !加载位置终点x坐标
+nHzb=NINT((jz_x2-jz_x1)/D_l+0.5)+1      !  荷载步
+!荷载数组
+*DIM,hz,ARRAY,28,2,0,q,l,   
+*SET,HZ(1,1,1) , 230 
+*SET,HZ(2,1,1) , 230 
+*SET,HZ(3,1,1) , 230 
+*SET,HZ(4,1,1) , 230 
+*SET,HZ(5,1,1) , 230
+*SET,HZ(6,1,1) , 230 
+*SET,HZ(7,1,1) , 230 
+*SET,HZ(8,1,1) , 230 
+*SET,HZ(9,1,1) , 230 
+*SET,HZ(10,1,1) , 230
+*SET,HZ(11,1,1) , 230
+*SET,HZ(12,1,1) , 230
+*SET,HZ(13,1,1) , 204
+*SET,HZ(14,1,1) , 204
+*SET,HZ(15,1,1) , 204
+*SET,HZ(16,1,1) , 204
+*SET,HZ(17,1,1) , 204
+*SET,HZ(18,1,1) , 204
+*SET,HZ(19,1,1) , 204
+*SET,HZ(20,1,1) , 204
+*SET,HZ(21,1,1) , 204
+*SET,HZ(22,1,1) , 204
+*SET,HZ(23,1,1) , 204
+*SET,HZ(24,1,1) , 204
+*SET,HZ(1,2,1) , 0
+*SET,HZ(2,2,1) , 1.8
+*SET,HZ(3,2,1) , 3.6
+*SET,HZ(4,2,1) , 12 
+*SET,HZ(5,2,1) , 13.8   
+*SET,HZ(6,2,1) , 15.6   
+*SET,HZ(7,2,1) , 21.1   
+*SET,HZ(8,2,1) , 22.9   
+*SET,HZ(9,2,1) , 24.7   
+*SET,HZ(10,2,1) , 33.1  
+*SET,HZ(11,2,1) , 34.9  
+*SET,HZ(12,2,1) , 36.7  
+*SET,HZ(13,2,1) , 40.946
+*SET,HZ(14,2,1) , 42.696
+*SET,HZ(15,2,1) , 49.646
+*SET,HZ(16,2,1) , 51.396
+*SET,HZ(17,2,1) , 54.388
+*SET,HZ(18,2,1) , 56.138
+*SET,HZ(19,2,1) , 63.088
+*SET,HZ(20,2,1) , 64.838
+*SET,HZ(21,2,1) , 67.83 
+*SET,HZ(22,2,1) , 69.58 
+*SET,HZ(23,2,1) , 76.53 
+*SET,HZ(24,2,1) , 78.28
+ 
+*DIM,ff,ARRAY,nn1+1      ! 定义节点荷载数组 
+*do,ii,1,nn1+1,1
+    *SET,ff(ii) , 0
+*enddo
+
+!施加荷载
+
+
+Delt_Time=D_l/(5*5/18)      !通过每单元的时间（V=5km/h）
+*do,ii,1,nHzb,1
+  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+
+
+  First_hz=jz_x1+(ii-1)*D_l         !第一个荷载位置相对于端节点位置
+
+  *do,ii,1,nn1+1,1                    !节点荷载清零
+     *SET,ff(ii) , 0
+  *enddo
+  
+  *do,jj,1,24,1    !计算节点等效荷载,调整循环次数，可以实现局部加载（将24改为12即为只加载双机）
+    *if,First_hz-HZ(jj,2,1),ge,0,and,First_hz-HZ(jj,2,1),le,ll,then               !荷载进入桁梁范围才处理
+        jdnum=NINT((First_hz-HZ(jj,2,1))/ww+0.5)   !荷载近端节点编号
+        x_jd=First_hz-HZ(jj,2,1)-(jdnum-1)*ww       !荷载距近节点距离
+        f1=0.5*HZ(jj,1,1)*(ww-x_jd)/ww              !近端节点荷载
+        f2=0.5*HZ(jj,1,1)*x_jd/ww                   !远端节点荷载
+        ff(jdnum)=ff(jdnum)+f1
+        ff(jdnum+1)=ff(jdnum+1)+f2
+     *endif
+  *enddo
+  *do,jj,1,nn1+1,1                                    !施加节点荷载
+      *if,ff(jj),gt,0.005,then
+      f,jj,FY,-ff(jj)
+      *endif
+  *enddo    
+  solve  
+*enddo
+fini

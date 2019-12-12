@@ -1,0 +1,248 @@
+fini
+/clear
+!南昌局  桥计算模型(2x108 影响线)
+!图号：
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1  
+
+ !不同杆件截面积
+
+R,1,0.028288
+R,2,0.03296
+R,3,0.037632
+R,4,0.0352
+R,5,0.03984
+R,6,0.04912
+R,7,0.055552
+R,8,0.056832
+R,11,0.020896
+R,12,0.040184
+R,13,0.021536
+R,14,0.02656
+R,15,0.047616
+R,16,0.042048
+R,20,0.013152
+
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+TYPE,1  
+MAT,1
+REAL,11
+ll=2*108             !梁全长
+hh=16                 !桁梁高
+ww=12                  !节间长
+nn1=ll/ww+1           !一侧主桁下弦纵向节点最大编号
+!
+!以下完成单侧平面桁架单元的建立
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+n,nn1+1,ww,hh,0           !上弦第一点
+n,3*nn1-5,ll-ww,hh,0           !上弦最后一点
+fill,nn1+1,3*nn1-5
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn1+1,3*nn1-6,1      !上弦单元
+  e,ii,ii+1
+*enddo
+
+n,53,ww/2,hh/2,0        !中间第一个节点
+n,70,ll-ww/2,hh/2,0        !中间第一个节点
+fill,53,70
+n,71,ll/2,hh/2,0        !中间支座上节点
+
+!建立腹杆单元
+*do,ii,1,nn1-2,1      !右斜杆单元
+  e,ii,ii+52
+  e,ii+52,ii+19+(ii-1)
+*enddo
+ e,18,70
+ e,2,53
+*do,ii,3,nn1,1      !左斜杆单元
+  e,ii,ii+51
+  e,ii+51,ii+17+(ii-3)
+*enddo
+*do,ii,21,51,2      !短竖杆单元
+  e,ii,ii+33-(ii-21)/2
+*enddo
+!长竖杆
+e,2,20
+e,10,71
+e,71,36
+e,18,52
+!中支座横杆
+e,61,71
+!----------------------------------------
+
+esel,all
+!选择单元
+esel,s,,,1,2
+esel,a,,,17,18
+!改变实常数（截面积）
+emodif,all,real,1
+
+esel,all
+esel,s,,,3
+esel,a,,,16
+esel,a,,,19,20
+esel,a,,,29,30
+esel,a,,,49,50
+esel,a,,,39.40
+emodif,all,real,2
+
+esel,all
+esel,s,,,6
+esel,a,,,13
+esel,a,,,21,26
+esel,a,,,43,48
+emodif,all,real,3
+
+esel,all
+esel,s,,,4,5
+esel,a,,,14,15
+esel,a,,,27,28
+esel,a,,,41,42
+emodif,all,real,4
+
+esel,all
+esel,s,,,7
+esel,a,,,12
+esel,a,,,31,32
+esel,a,,,37,38
+emodif,all,real,5
+
+esel,all
+esel,s,,,8
+esel,a,,,11
+emodif,all,real,6
+
+esel,all
+esel,s,,,33,36
+emodif,all,real,7
+
+esel,all
+esel,s,,,9,10
+emodif,all,real,8
+
+esel,all
+esel,s,,,51,52
+esel,a,,,119,120
+emodif,all,real,12
+
+esel,all
+esel,s,,,137
+esel,a,,,140
+emodif,all,real,13
+
+esel,all
+esel,s,,,97,98
+esel,a,,,99,100
+esel,a,,,71,72
+esel,a,,,73,74
+emodif,all,real,14
+
+esel,all
+esel,s,,,101,102
+esel,a,,,69,70
+emodif,all,real,15
+
+esel,all
+esel,s,,,138,139
+emodif,all,real,16
+
+esel,all
+esel,s,,,121,136
+esel,a,,,141
+emodif,all,real,20
+
+esel,all
+
+/solu
+                 !约束，可根据实际情况增加约束
+D,1,UY
+D,10,UY
+D,10,UX
+D,19,UY
+
+
+!施加荷载
+!加载
+
+x0=0                           !从-1.0开始加载
+x1=ll
+LHY=0                  !加载平面的竖向坐标
+D_l=6                         !单位荷载移动步长
+nHzb=nint((x1-x0)/D_l+0.5)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0                         !单位荷载移动位置
+
+*do,ii,1,nHzb,1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+      *if,xx,gt,x1,then
+        *exit
+      *endif    
+  nsel,s,node,,node(xx,LHY,0) 
+  esln
+  *get,emin,elem,,num,min
+  ee=emin        
+  edy=0                     !先给荷载单元赋值 
+  ecount=elmiqr(0,13)      
+  *do,nn,1,ecount
+      ye1= ny(nelem(ee,1))    !单元节点坐标  
+      ye2= ny(nelem(ee,2))
+      xe1= nx(nelem(ee,1))
+      xe2= nx(nelem(ee,2))
+      *if,abs(ye1-ye2),le,1e-6,and,(xx-xe1)*(xx-xe2),le,0,then
+          edy=ee
+      *endif
+      ee=elnext(ee)                            
+  *enddo
+      cc=abs(nx(nelem(edy,1))-nx(nelem(edy,2)))          !单元x方向长
+      aa=abs(nx(nelem(edy,1))-xx)                       !I节点距荷载长度
+      bb=abs(nx(nelem(edy,2))-xx)                       !J节点距荷载长度
+      hzi=1*bb/cc                           !I节点等效荷载
+      hzj=1*aa/cc                           !j节点等效荷载
+
+      allsel,all,all
+      f,nelem(edy,1),fy,-hzi
+      f,nelem(edy,2),fy,-hzj
+  
+  hzwz(ii)=xx                    !将荷载的实际位置存入数组
+  solve
+  xx=xx+D_l 
+*enddo
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos
+
+/POST26 
+
+ESOL,2,18,19,smisc,1,E0~E2~
+ESOL,3,119,19,smisc,1,E0~A2~
+ESOL,4,5,6,smisc,1,E8E10
+ESOL,5,14,14,smisc,1,E8~E10~
+ESOL,6,23,24,smisc,1,A6A8 
+ESOL,7,46,47,smisc,1,A6~A8~ 
+ESOL,8,34,35,smisc,1,A16A18  
+ESOL,9,9,10,smisc,1,E16E18 
+ESOL,10,10,10,SMIS,1,E18E16~
+ESOL,11,69,10,SMIS,1,E18A16~   
+ESOL,12,101,61,SMIS,1,E18A16  
+ 
+NSOL,13,15,u,y,E8~_Y  
+NSOL,14,5,u,y,E8_Y
+NSOL,15,19,U,x,E0~_X  
+

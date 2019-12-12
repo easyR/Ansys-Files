@@ -1,0 +1,164 @@
+!中活载加载命令流
+!可以通过x0,x1数据的调整，求得最不利荷载位置
+!2010-09-02 调试通过
+
+!定义荷载数组（中活载）
+hzxs=1                        !荷载系数
+cjxs=1                          !冲击系数
+*DIM,hz,ARRAY,7,3  
+*SET,HZ(1,1) , 220*hzxs*cjxs      !5个集中荷载大小
+*SET,HZ(2,1) , 220*hzxs*cjxs 
+*SET,HZ(3,1) , 220*hzxs*cjxs  
+*SET,HZ(4,1) , 220*hzxs*cjxs  
+*SET,HZ(5,1) , 220*hzxs*cjxs 
+*SET,HZ(6,1) , 92*HZXS*CJXS       !第一个均布荷载
+*SET,HZ(7,1) , 80*HZXS*CJXS       !第二个均布荷载
+*SET,HZ(1,2) , 0                  !5个集中荷载位置
+*SET,HZ(2,2) , 1.5 
+*SET,HZ(3,2) , 3  
+*SET,HZ(4,2) , 4.5  
+*SET,HZ(5,2) , 6 
+*SET,HZ(6,2) , 7.5       !第一个均布荷载起点位置
+*SET,HZ(7,2) , 37.5      !第二个均布荷载起点位置
+*SET,HZ(1,3) , 0         !5个集中荷载位置
+*SET,HZ(2,3) , 0 
+*SET,HZ(3,3) , 0  
+*SET,HZ(4,3) , 0  
+*SET,HZ(5,3) , 0 
+*SET,HZ(6,3) , 37.5      !第一个均布荷载终点位置
+*SET,HZ(7,3) , 10000        !第二个均布荷载起点位置，无限长为10000
+
+
+allsel,all,all
+
+x0=0                      !加载的起点坐标
+x1=75                      !加载的终点坐标
+lhy=0                     !加载梁的竖向坐标
+
+D_l=0.5                         !加载步长
+mm1=(x1-x0+hz(6,3))/D_l       !加载至第一匀布荷载结束
+nHzb=nint(mm1+0.5)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0
+fcum,add                        !同节点的荷载采用叠加模式
+*do,ii,1,nHzb,1                 !XH_1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+  *do,kk,1,7                  !共7个荷载，!XH_2
+
+    zx=xx-hz(kk,2)            !第kk荷载头坐标
+    zx1=xx-hz(kk,3)           !第kk荷载尾坐标
+    *if,hz(kk,3),eq,0,then    !计算集中荷载，!IF_1
+      *if,zx,gt,x0,and,zx,lt,x1,then         !只有集中荷载且大于x0小于x1,即进入影响范围的轴才被计算,!IF_2
+        nsel,s,node,,node(zx,lhy,0) 
+        esln
+        *get,emin,elem,,num,min
+        ee=emin        
+        edy=0                     !先给荷载单元赋值 
+        ecount=elmiqr(0,13)      
+        *do,nn,1,ecount             !XH_3
+              ye1= ny(nelem(ee,1))    !单元节点坐标  
+              ye2= ny(nelem(ee,2))
+              xe1= nx(nelem(ee,1))
+              xe2= nx(nelem(ee,2))
+             *if,abs(ye1-ye2),le,1e-6,and,(zx-xe1)*(zx-xe2),le,0,then           !IF_3   
+                edy=ee
+             *endif                                                             !IF_3
+             ee=elnext(ee)                            
+        *enddo                      !XH_3
+         cc=abs(nx(nelem(edy,1))-nx(nelem(edy,2)))          !单元x方向长
+         aa=abs(nx(nelem(edy,1))-zx)                       !I节点距荷载长度
+         bb=abs(nx(nelem(edy,2))-zx)                       !J节点距荷载长度
+         hzi=hz(kk,1)*bb/cc                           !I节点等效荷载
+         hzj=hz(kk,1)*aa/cc                           !j节点等效荷载
+
+         allsel,all,all
+         f,nelem(edy,1),fy,-hzi
+         f,nelem(edy,2),fy,-hzj
+         
+       *endif                           !IF_2
+ 
+     *else                                              !计算匀布荷载,!IF_1
+         *if,zx,gt,x0,and,zx1,lt,x1,then                !匀布荷载必须落在计算范围才计算,!IF_4
+              hzt=0                                     !计算荷载头尾坐标
+              hzw=0
+              *if,zx,gt,x1,then             !IF_5
+                  hzt=x1              
+              *else
+                  hzt=zx              
+              *endif                        !IF_5
+              *if,zx1,lt,x0,then            !IF_6
+                  hzw=x0              
+              *else
+                  hzw=zx1              
+              *endif                        !IF_6
+              nsel,s,loc,x,hzw,hzt
+              nsel,r,loc,y,lhy
+              esln
+             *get,emin,elem,,num,min
+             ee=emin        
+             ecount=elmiqr(0,13)      
+             *do,nn,1,ecount                !XH_4
+                ye1= ny(nelem(ee,1))    !单元节点坐标  
+                ye2= ny(nelem(ee,2))
+                xe1= nx(nelem(ee,1))
+                xe2= nx(nelem(ee,2))
+                  *if,nsel(nelem(ee,1)),eq,-1,then      !如果节点没被选择，选择该节点
+                        nsel,a,node,,nelem(ee,1)                  
+                  *endif 
+                  *if,nsel(nelem(ee,2)),eq,-1,then
+                        nsel,a,node,,nelem(ee,2)                  
+                  *endif                                   
+                *if,abs(ye1-ye2),lt,1e-6,then   !只计算梁单元,IF_7
+                    *if, (xe1<xe2),ge,hzw,and,(xe1>xe2),le,hzt,then       !计算荷载内单元,!IF_8
+                         jbhz=0.5*hz(kk,1)*abs(xe1-xe2)                        
+                         f,nelem(ee,1),fy,-jbhz
+                         f,nelem(ee,2),fy,-jbhz
+                    *elseif,(xe1<xe2),lt,hzw,and,(xe1>xe2),gt,hzw       !计算左跨越荷载单元,!IF_8
+                          jbhz1=0.5*abs(hzw-(xe1>xe2))*abs(hzw-(xe1>xe2))*hz(kk,1)/abs(xe1-xe2) 
+                          jbhz2=(abs(xe1-xe2)-0.5*abs(hzw-(xe1>xe2)))*abs(hzw-(xe1>xe2))*hz(kk,1)/abs(xe1-xe2)
+                                                        
+                          *if,xe2,gt,xe1,then                   !IF_9
+                              f,nelem(ee,1),fy,-jbhz1
+                              f,nelem(ee,2),fy,-jbhz2
+                          *else
+                              f,nelem(ee,1),fy,-jbhz2
+                              f,nelem(ee,2),fy,-jbhz1                      
+                          *endif                                !IF_9
+                                               
+                     *elseif, (xe1<xe2),lt,hzt,and,(xe1>xe2),gt,hzt     !计算右跨越荷载单元,!IF_8
+                          jbhz1=(abs(xe1-xe2)-0.5*abs(hzt-(xe1<xe2)))*abs(hzt-(xe1<xe2))*hz(kk,1)/abs(xe1-xe2) 
+                          jbhz2=0.5*abs(hzt-(xe1<xe2))*abs(hzt-(xe1<xe2))*hz(kk,1)/abs(xe1-xe2)
+                          *if,xe2,gt,xe1,then                     !IF_10
+                              f,nelem(ee,1),fy,-jbhz1
+                              f,nelem(ee,2),fy,-jbhz2
+                          *else
+                              f,nelem(ee,1),fy,-jbhz2
+                              f,nelem(ee,2),fy,-jbhz1                      
+                          *endif                                  !IF_10                                                                       
+                    *endif              !IF_8                           
+                  *endif                !IF_7
+                 ee=elnext(ee)                            
+              *enddo                    !XH_4
+                                                                       
+         *endif           !IF_4     
+  
+     *endif               !IF_1
+  *enddo                  !XH_2
+  allsel,all,all   
+  solve
+  hzwz(ii)=xx
+  xx=xx+D_l 
+*enddo                    !XH_1
+
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos
+fini

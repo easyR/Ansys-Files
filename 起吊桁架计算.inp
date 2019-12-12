@@ -1,0 +1,124 @@
+fini
+/clear
+!
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1 
+ET,2,beam3
+
+   !不同杆件截面积
+
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8  !(KPa)
+MPDATA,PRXY,1,,0.3 
+MPDATA,DENS,1,,7.8         !定义材料密度，和加速度配合
+
+ET,1,BEAM4  
+R,1,2.150e-3,7.12e-6,6.4e-7, , , ,         !主梁截面特性(14工字钢)A,Iyy,Ixx
+R,2,1.020e-3
+R,3,8.16e-4
+
+TYPE,2  
+MAT,1
+REAL,1
+
+!ACEL,,10             !施加y方向重力加速度，本计算不施加
+!
+!以下完成单侧平面桁架单元的建立（X 桁架）
+n,1,0,0,0              !下弦第一点
+n,2,0.75,0,0
+n,17,30.75,0,0
+fill,2,17
+n,18,31.5,0,0
+n,19,0.75,1.36,0
+n,34,30.75,1.36
+fill,19,34
+
+*DO,ii,1,17,1          !下弦单元
+  e,ii,ii+1
+*enddo
+
+*DO,ii,19,33,1          
+  e,ii,ii+1
+*enddo
+
+real ,2
+
+*DO,ii,2,17,1          
+  e,ii,ii+17
+*enddo
+
+real ,3
+
+*DO,ii,3,16,2          
+  e,ii,ii+16
+  e,ii,ii+18
+*enddo
+  e,17,33
+  
+  real,2
+  e,1,19
+  e,34,18
+
+/solu
+ !约束，可根据实际情况增加约束
+D,22,UY,0
+D,22,UX,0
+D,31,UY,0
+
+F=20   !KN
+
+f,1,fy,-F/2
+f,18,fy,-F/2
+
+*DO,ii,2,17,1          
+  f,ii,fy,-F
+*enddo
+
+ETABLE,NI,SMISC,1 !单元I点轴力
+
+ETABLE,NJ,SMISC,7 !单元J点轴力
+
+ETABLE,QI,SMISC,2 !单元I点剪力
+
+ETABLE,QJ,SMISC,8 !单元J点剪力
+
+ETABLE,MI,SMISC,6 !单元I点弯矩
+
+ETABLE,MJ,SMISC,12 !单元J点弯矩
+
+ETABLE,YMaxI,NMISC,1 !梁最大正应力（N/A+M/I)
+ETABLE,YMaxJ,NMISC,3
+
+ETABLE,YMinI,NMISC,2 !梁最小正应力（N/A-M/I)
+ETABLE,YMinJ,NMISC,4
+
+
+! 更新单元表
+
+ETABLE,REFL
+
+! 画轴力分布图
+
+/TITLE,Axial force diagram
+
+PLLS,NI,NJ,1.0,0
+
+/image,save,'Axial_force_%T%',jpg
+
+! 画剪力分布图
+
+/TITLE,Shearing force diagram
+
+PLLS,QI,QJ,1.0,0
+
+/image,save,'Shearing_force_%T%',jpg
+
+! 画弯矩分布图
+
+/TITLE,Bending moment diagram
+
+PLLS,MI,MJ,-0.8,0
+

@@ -1,0 +1,22 @@
+/PREP7
+wpro,,45.000000,
+wpro,,,45.000000
+wpro,45.000000,,
+WPSTYLE,,,,,,,,0  
+BLOCK,-10,10,-10,10,-10,10, 
+VDELE,       1  
+/PNUM,KP,0  
+/PNUM,LINE,0
+/PNUM,AREA,1
+/PNUM,VOLU,0
+/PNUM,NODE,0
+/PNUM,TABN,0
+/PNUM,SVAL,0
+/NUMBER,0   
+!*  
+/PNUM,ELEM,0
+/REPLOT 
+!*  
+APLOT   
+ADELE,       4  
+/REPLOT

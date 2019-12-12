@@ -1,0 +1,55 @@
+fini
+/clear
+/PREP7  
+!*  
+ET,1,BEAM3        !梁单元（模拟柱、盖梁及基础）
+!*  
+ET,2,MASS21       !质量单元（模拟梁体及桥面）
+
+!*  
+KEYOPT,2,1,0
+KEYOPT,2,2,0
+KEYOPT,2,3,3
+!*  
+R,1,95.86,1371,13.8, , , ,      !墩下部实常数
+!*  
+R,2,74.86,1285,13.8,0,0,0,    !墩上部实常数
+
+R,3,3000000, ,          !梁及线路实常数，质量=3000T
+!R,5,4*1*1.5e7           !弹簧单元实常数2e7为地基系数k0,单位Pa
+!*  
+!*  
+MPTEMP,,,,,,,,  
+MPTEMP,1,0  
+MPDATA,EX,1,,2.55e10 
+MPDATA,PRXY,1,,0.2  
+MPTEMP,,,,,,,,  
+MPTEMP,1,0  
+MPDATA,DENS,1,,2500 
+
+type,1
+real,1
+n,1,0,0
+n,8,0,7
+fill,1,8
+
+*do,ii,1,7
+  e,ii,ii+1
+*enddo
+
+real,2
+n,35,0,33.365
+fill,8,35
+
+*do,ii,8,34
+  e,ii,ii+1
+*enddo
+
+!梁质量单元
+type,2
+real,3
+e,35
+
+/solu
+d,1,all
+

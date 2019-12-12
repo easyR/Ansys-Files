@@ -1,0 +1,261 @@
+fini
+/clear
+!长东黄河桥3x108m桁梁计算(影响线计算)
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1  
+
+   !不同杆件截面积
+
+R,1,0.047904
+R,2,0.038688 
+R,3,0.03704
+R,4,0.0324
+R,5,0.03072
+R,6,0.02904
+R,7,0.02344
+R,8,0.019856
+R,9,0.01444
+R,10,0.04632
+R,11,0.0190
+R,12,0.0106
+
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+MPDATA,DENS,1,,7.8         !定义材料密度，和加速度配合
+TYPE,1  
+MAT,1
+REAL,9
+ll=3*108              !梁全长
+hh=16                 !桁梁高
+ww=12                  !节间长
+nn1=ll/ww+1           !一侧主桁下弦纵向节点最大编号
+!ACEL,,10             !施加y方向重力加速度，本计算不施加
+!
+!以下完成单侧平面桁架单元的建立（X 桁架）
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+nn2=nn1+1             !上弦第一点编号
+n,nn2,ww,hh,0         
+n,nn2+nn1-3,ll-ww,hh,0           !上弦最后一点
+fill,nn2,nn2+nn1-3
+nn3=nn2+nn1-2            !中间节点第一点编号
+n,nn3,ww/2,hh/2,0
+n,nn3+nn1-2,ll-ww/2,hh/2,0
+fill,nn3,nn3+nn1-2
+
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn2,nn2+nn1-4,1      !上弦单元
+  e,ii,ii+1
+*enddo
+
+*do,ii,1,nn1-2,1            !向右倾斜腹杆
+  e,ii,nn3+ii-1
+  e,nn3+ii-1,nn2+ii-1
+*enddo
+
+*do,ii,3,nn1,1            !向左倾斜腹杆
+  e,ii,nn3+ii-2
+  e,nn3+ii-2,nn2+ii-3
+*enddo
+e,2,nn3                   !第一根向左倾斜腹杆
+e,nn1-1,nn3+nn1-2         !最后一根向右倾斜腹杆
+
+!以下增加一些额外的杆件（专属于3x108桁梁）
+n,,0,hh/2
+n,,0,hh
+n,,9*ww,hh/2
+n,,18*ww,hh/2
+n,,26*ww,hh/2
+e,1,82
+e,82,83
+e,83,29
+e,82,55
+e,83,55
+e,10,84
+e,84,37
+e,84,63
+e,19,85
+e,85,46
+e,85,73
+e,27,86
+e,86,54
+
+
+!选择单元
+esel,s,,,9,10
+esel,a,,,18,19
+!改变实常数（截面积）
+emodif,all,real,1
+
+esel,s,,,1
+esel,a,,,27
+esel,a,,,35,36
+esel,a,,,4,5
+esel,a,,,23,24
+esel,a,,,44,45
+esel,a,,,161
+esel,a,,,53,54
+esel,a,,,155,156
+emodif,all,real,2
+
+esel,all
+esel,s,,,28,32
+esel,a,,,34
+esel,a,,,37
+esel,a,,,48,52
+esel,a,,,46
+esel,a,,,43
+esel,a,,,2,3
+esel,a,,,6,8
+esel,a,,,11,12
+esel,a,,,25,26
+esel,a,,,20,22
+esel,a,,,16,17
+emodif,all,real,3
+
+esel,all
+esel,s,,,40
+esel,a,,,14
+emodif,all,real,4
+
+esel,all
+esel,s,,,33
+esel,a,,,38,39
+esel,a,,,47
+esel,a,,,41,42
+esel,a,,,13
+esel,a,,,15
+emodif,all,real,5
+
+esel,all
+esel,s,,,117,118
+esel,a,,,119,122
+esel,a,,,71,72
+esel,a,,,87,92
+esel,a,,,137,138
+emodif,all,real,6
+
+esel,all
+esel,s,,,69,70
+esel,a,,,73,74
+esel,a,,,139,140
+esel,a,,,135,136
+emodif,all,real,7
+
+esel,all
+esel,s,,,55,58
+esel,a,,,113,116
+esel,a,,,65,68
+esel,a,,,123,124
+esel,a,,,75,76
+esel,a,,,93,96
+esel,a,,,141,144
+esel,a,,,133,134
+esel,a,,,85,86
+esel,a,,,151,154
+emodif,all,real,8
+
+esel,all
+esel,s,,,164,165
+esel,a,,,167,168
+emodif,all,real,10
+
+esel,all
+esel,s,,,159,160
+esel,a,,,170,171
+emodif,all,real,11
+
+esel,all
+esel,s,,,162
+esel,a,,,166
+esel,a,,,169
+emodif,all,real,12
+
+esel,all
+
+/solu
+ !约束，可根据实际情况增加约束
+D,1,UY,0
+D,10,UY,0
+D,19,UY,0
+D,28,UY,0
+D,19,UX,0
+
+!单位荷载加载命令流
+/solu
+
+x0=0                           !从0开始加载
+x1=324
+LHY=0                   !加载平面的竖向坐标
+D_l=12                         !单位荷载移动步长
+nHzb=nint((x1-x0)/D_l+0.5)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0                         !单位荷载移动位置
+
+*do,ii,1,nHzb,1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+      *if,xx,gt,x1,then
+        *exit
+      *endif    
+  nsel,s,node,,node(xx,LHY,0) 
+  esln
+  *get,emin,elem,,num,min
+  ee=emin        
+  edy=0                     !先给荷载单元赋值 
+  ecount=elmiqr(0,13)      
+  *do,nn,1,ecount
+      ye1= ny(nelem(ee,1))    !单元节点坐标  
+      ye2= ny(nelem(ee,2))
+      xe1= nx(nelem(ee,1))
+      xe2= nx(nelem(ee,2))
+      *if,abs(ye1-ye2),le,1e-6,and,(xx-xe1)*(xx-xe2),le,0,then
+          edy=ee
+      *endif
+      ee=elnext(ee)                            
+  *enddo
+      cc=abs(nx(nelem(edy,1))-nx(nelem(edy,2)))          !单元x方向长
+      aa=abs(nx(nelem(edy,1))-xx)                       !I节点距荷载长度
+      bb=abs(nx(nelem(edy,2))-xx)                       !J节点距荷载长度
+      hzi=1*bb/cc                           !I节点等效荷载
+      hzj=1*aa/cc                           !j节点等效荷载
+
+      allsel,all,all
+      f,nelem(edy,1),fy,-hzi
+      f,nelem(edy,2),fy,-hzj
+  
+  hzwz(ii)=xx                    !将荷载的实际位置存入数组
+  solve
+  xx=xx+D_l 
+*enddo
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos
+
+!取得影响线表
+ /POST26 
+ESOL,2,3,3,smisc,1,E4E6 
+ESOL,3,4,4,smisc,1,E6E8
+ESOL,4,5,5,smisc,1,E8E10
+ESOL,5,6,6,smisc,1,E10E12
+
+ESOL,6,34,35,smisc,1,A14A16
+ESOL,7,35,36,smisc,1,A16A18
+ESOL,8,36,37,smisc,1,A18A20
+ESOL,9,37,38,smisc,1,A20A22       
+  
+

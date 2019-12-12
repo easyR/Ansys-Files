@@ -1,0 +1,38 @@
+!连续梁影响线计算
+/PREP7  
+!*  
+ET,1,BEAM3  
+R,1,46280,7.87e9,3.12e8, , , ,         !主梁截面特性(1m工字钢)
+MP,EX,1,2.1e5  
+MP,PRXY,1,,0.3 
+!MP,DENS,1,7.8e-6
+
+lc=42.6   !(梁长：m)
+k,1,0,0
+k,2,lc,0
+lstr,1,2
+
+dc=0.1            !单元长0.1
+lesize,all,dc        !单元网格，单元长0.1
+lmesh,all
+
+!求解
+/solu
+!先手工选择约束
+
+g=1              !单位集中荷载
+nHzb=lc/dc+1            !荷载总步数，单元长0.1
+
+Delt_Time=dc/(5*5/18)      !通过每单元的时间（V=5km/h）
+*do,ii,1,nHzb,1
+l_jld=(ii-1)*dc            !第一轴距梁端距离
+  TIME,ii*Delt_Time     !结束时间
+  KBC,0                 !台阶加载
+  NSUBST,5              !子步数为五
+
+  f,NODE(l_jld,0,0),fy,-g
+
+  solve           !LSWR,ii
+  fdele,all,all
+*enddo  
+finish

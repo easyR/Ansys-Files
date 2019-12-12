@@ -1,0 +1,131 @@
+
+
+/prep7
+et,1,82  !注意划分截面单元需要用PLANE82单元。此处千万别用梁单元
+mp,prxy,1,1/3  !定义泊桑比
+mp,ex,1,2.07e11  !定义弹性模量
+
+asel,all !选择所有的面
+esize,,3 !确定划分网格的大小，每边划成3份。如果你愿意，也可以改变网格数量。
+
+amesh,all !给截面划分网格
+
+secwrite,cc,sect,,1 !将截面命名为cc.sect写入当前工作目录中去。
+
+sectype,1,beam,mesh  !指定读入的截面类型在后面使用中编号
+secoffset,user,0,0   !指定截面在梁纵轴上的偏移量
+secread,'gg','sect',,mesh !读入截面
+
+secplot,1   !显示1号截面图形
+
+
+n,1
+n,10,20
+fill,1,10
+
+n,11,0,0,-10
+n,20,20,0,-10
+fill,11,20
+
+n,100,0,50
+n,101,0,50,-10
+secnum,1
+*do,i,1,9
+  e,i,i+1,100
+*enddo
+secnum,3
+*do,i,11,19
+  e,i,i+1,101
+*enddo
+
+f,163,fy,-200
+f,164,fy,-200
+f,171,fy,-200
+f,172,fy,-200
+
+!test
+
+fini
+/clear
+
+/prep7
+
+
+ET,1,BEAM188
+ET,2,shell181
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+MPDATA,DENS,1,,7.8
+
+sectype,1,beam,mesh  !指定读入的截面类型在后面使用中编号
+secoffset,user,0,0.26   !指定截面在梁纵轴上的偏移量
+secread,'UL_KK','sect',,mesh !读入截面
+
+sect,2,shell,,  
+secdata, 0.008,1,0.0,3  
+secoffset,TOP   
+
+type,1
+secnum,1
+
+n,1000,0,20
+*do,i,1,11
+  n,i,i-1
+  *if,i,gt,1,then
+    e,i-1,i,1000
+  *endif
+*enddo
+
+*do,i,12,22
+  n,i,i-12,0,-0.15
+*enddo
+
+*do,i,23,33
+  n,i,i-23,0,0.15
+*enddo
+
+type,2
+secnum,2
+*do,i,1,10
+  e,i,i+11,i+12,i+1
+*enddo
+
+*do,i,1,10
+  e,i,i+1,i+23,i+22
+*enddo
+
+!test2
+
+fini
+/clear
+
+/prep7
+
+
+ET,1,BEAM188
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+MPDATA,DENS,1,,7.8
+
+sectype,1,beam,mesh  !指定读入的截面类型在后面使用中编号
+!secoffset,user,0,0.26   !指定截面在梁纵轴上的偏移量
+secread,'UL_BK','sect',,mesh !读入截面
+
+type,1
+secnum,1
+
+n,1000,0,20
+*do,i,1,11
+  n,i,i-1
+  *if,i,gt,1,then
+    e,i-1,i,1000
+  *endif
+*enddo
+
+ESOL,2,7420,3184,smisc,1,F_A7A8_jgy_M   
+ESOL,3,7421,3185,smisc,1,F_A7A8_jgy_J   
+

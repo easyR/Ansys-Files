@@ -1,0 +1,740 @@
+/PREP7  
+!*  
+ET,1,PLANE42
+!*  
+ET,2,SOLID45
+!*  
+MPTEMP,,,,,,,,  
+MPTEMP,1,0  
+MPDATA,EX,1,,210000 
+MPDATA,PRXY,1,,0.30 
+MPDATA,EX,2,,600
+MPDATA,PRXY,2,,0.25 
+K, ,-330,64,,   
+K, ,-162,64,,   
+K, ,-154,64,,   
+K, ,154,64,,
+K, ,162,64,,
+K, ,330,64,,
+K, ,-330,0,,
+K, ,-162,0,,
+K, ,-154,0,,
+K, ,154,0,, 
+K, ,162,0,, 
+K, ,330,0,, 
+K, ,330,14,,
+K, ,162,14,,
+K, ,154,14,,
+K, ,-154,14,,   
+K, ,-162,14,,   
+K, ,-330,14,,   
+K, ,-96,-280,,  
+K, ,96,-280,,   
+K, ,-104,-288,, 
+K, ,104,-288,,  
+K, ,-330,-900,, 
+K, ,330,-900,,  
+K, ,330,-288,,  
+K, ,-330,-288,, 
+LSTR,       1,       2  
+LSTR,       2,       3  
+LSTR,       3,       4  
+LSTR,       4,       5  
+LSTR,       5,       6  
+LSTR,      18,      17  
+LSTR,      17,      16  
+LSTR,      16,      15  
+LSTR,      15,      14  
+LSTR,      14,      13  
+LSTR,       7,       8  
+LSTR,       8,       9  
+LSTR,       9,      10  
+LSTR,      10,      11  
+LSTR,      11,      12  
+LSTR,      19,      21  
+LSTR,      20,      22  
+LSTR,      19,      20  
+LSTR,      21,      22  
+LSTR,       9,      19  
+LSTR,       8,      21  
+LSTR,      10,      20  
+LSTR,      11,      22  
+LSTR,       1,      18  
+LSTR,      18,       7  
+LSTR,       2,      17  
+LSTR,      17,       8  
+LSTR,       3,      16  
+LSTR,      16,       9  
+LSTR,       4,      15  
+LSTR,      15,      10  
+LSTR,       5,      14  
+LSTR,      14,      11  
+LSTR,       6,      13  
+LSTR,      13,      12  
+LSTR,       7,      26  
+LSTR,      26,      21  
+LSTR,      22,      25  
+LSTR,      25,      12  
+LSTR,      26,      23  
+LSTR,      23,      24  
+LSTR,      24,      25  
+FLST,2,4,4  
+FITEM,2,1   
+FITEM,2,24  
+FITEM,2,6   
+FITEM,2,26  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,28  
+FITEM,2,26  
+FITEM,2,2   
+FITEM,2,7   
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,3   
+FITEM,2,8   
+FITEM,2,28  
+FITEM,2,30  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,4   
+FITEM,2,32  
+FITEM,2,30  
+FITEM,2,9   
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,5   
+FITEM,2,10  
+FITEM,2,32  
+FITEM,2,34  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,25  
+FITEM,2,6   
+FITEM,2,11  
+FITEM,2,27  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,7   
+FITEM,2,12  
+FITEM,2,29  
+FITEM,2,27  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,8   
+FITEM,2,13  
+FITEM,2,29  
+FITEM,2,31  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,9   
+FITEM,2,14  
+FITEM,2,33  
+FITEM,2,31  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,10  
+FITEM,2,15  
+FITEM,2,33  
+FITEM,2,35  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,12  
+FITEM,2,20  
+FITEM,2,21  
+FITEM,2,16  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,18  
+FITEM,2,19  
+FITEM,2,17  
+FITEM,2,16  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,17  
+FITEM,2,14  
+FITEM,2,23  
+FITEM,2,22  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,11  
+FITEM,2,37  
+FITEM,2,21  
+FITEM,2,36  
+AL,P51X 
+FLST,2,4,4  
+FITEM,2,23  
+FITEM,2,15  
+FITEM,2,38  
+FITEM,2,39  
+AL,P51X 
+FLST,2,6,4  
+FITEM,2,37  
+FITEM,2,19  
+FITEM,2,38  
+FITEM,2,42  
+FITEM,2,40  
+FITEM,2,41  
+AL,P51X 
+FLST,5,5,5,ORDE,2   
+FITEM,5,1   
+FITEM,5,-5  
+CM,_Y,AREA  
+ASEL, , , ,P51X 
+CM,_Y1,AREA 
+CMSEL,S,_Y  
+!*  
+CMSEL,S,_Y1 
+AATT,       2, ,   1,       0,  
+CMSEL,S,_Y  
+CMDELE,_Y   
+CMDELE,_Y1  
+!*  
+FLST,5,11,5,ORDE,2  
+FITEM,5,6   
+FITEM,5,-16 
+CM,_Y,AREA  
+ASEL, , , ,P51X 
+CM,_Y1,AREA 
+CMSEL,S,_Y  
+!*  
+CMSEL,S,_Y1 
+AATT,       1, ,   1,       0,  
+CMSEL,S,_Y  
+CMDELE,_Y   
+CMDELE,_Y1  
+!*  
+FLST,5,5,5,ORDE,2   
+FITEM,5,1   
+FITEM,5,-5  
+CM,_Y,AREA  
+ASEL, , , ,P51X 
+CM,_Y1,AREA 
+CMSEL,S,_Y  
+!*  
+CMSEL,S,_Y1 
+AATT,       2, ,   1,       0,  
+CMSEL,S,_Y  
+CMDELE,_Y   
+CMDELE,_Y1  
+!*  
+FLST,5,11,5,ORDE,2  
+FITEM,5,6   
+FITEM,5,-16 
+CM,_Y,AREA  
+ASEL, , , ,P51X 
+CM,_Y1,AREA 
+CMSEL,S,_Y  
+!*  
+CMSEL,S,_Y1 
+AATT,       1, ,   1,       0,  
+CMSEL,S,_Y  
+CMDELE,_Y   
+CMDELE,_Y1  
+!*  
+FLST,5,6,4,ORDE,6   
+FITEM,5,1   
+FITEM,5,5   
+FITEM,5,-6  
+FITEM,5,10  
+FITEM,5,-11 
+FITEM,5,15  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,3, , , , ,1  
+!*  
+FLST,5,3,4,ORDE,3   
+FITEM,5,3   
+FITEM,5,8   
+FITEM,5,13  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,5, , , , ,1  
+!*  
+FLST,5,6,4,ORDE,6   
+FITEM,5,2   
+FITEM,5,4   
+FITEM,5,7   
+FITEM,5,9   
+FITEM,5,12  
+FITEM,5,14  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,1, , , , ,1  
+!*  
+FLST,5,6,4,ORDE,6   
+FITEM,5,24  
+FITEM,5,26  
+FITEM,5,28  
+FITEM,5,30  
+FITEM,5,32  
+FITEM,5,34  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,2, , , , ,1  
+!*  
+FLST,5,6,4,ORDE,6   
+FITEM,5,25  
+FITEM,5,27  
+FITEM,5,29  
+FITEM,5,31  
+FITEM,5,33  
+FITEM,5,35  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,1, , , , ,1  
+!*  
+SAVE
+MSHAPE,0,2D 
+MSHKEY,1
+!*  
+FLST,5,5,5,ORDE,2   
+FITEM,5,1   
+FITEM,5,-5  
+CM,_Y,AREA  
+ASEL, , , ,P51X 
+CM,_Y1,AREA 
+CHKMSH,'AREA'   
+CMSEL,S,_Y  
+!*  
+AMESH,_Y1   
+!*  
+CMDELE,_Y   
+CMDELE,_Y1  
+CMDELE,_Y2  
+!*  
+GPLOT   
+FLST,5,5,5,ORDE,2   
+FITEM,5,6   
+FITEM,5,-10 
+CM,_Y,AREA  
+ASEL, , , ,P51X 
+CM,_Y1,AREA 
+CHKMSH,'AREA'   
+CMSEL,S,_Y  
+!*  
+AMESH,_Y1   
+!*  
+CMDELE,_Y   
+CMDELE,_Y1  
+CMDELE,_Y2  
+!*  
+/UI,MESH,OFF
+FLST,5,6,4,ORDE,4   
+FITEM,5,20  
+FITEM,5,-23 
+FITEM,5,36  
+FITEM,5,39  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,2, , , , ,1  
+!*  
+FLST,5,2,4,ORDE,2   
+FITEM,5,37  
+FITEM,5,-38 
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,3, , , , ,1  
+!*  
+FLST,5,2,4,ORDE,2   
+FITEM,5,18  
+FITEM,5,-19 
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,2, , , , ,1  
+!*  
+FLST,5,2,4,ORDE,2   
+FITEM,5,16  
+FITEM,5,-17 
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,1, , , , ,1  
+!*  
+SAVE
+FLST,5,5,5,ORDE,2   
+FITEM,5,11  
+FITEM,5,-15 
+CM,_Y,AREA  
+ASEL, , , ,P51X 
+CM,_Y1,AREA 
+CHKMSH,'AREA'   
+CMSEL,S,_Y  
+!*  
+AMESH,_Y1   
+!*  
+CMDELE,_Y   
+CMDELE,_Y1  
+CMDELE,_Y2  
+!*  
+/UI,MESH,OFF
+FLST,5,1,4,ORDE,1   
+FITEM,5,41  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,8, , , , ,1  
+!*  
+FLST,5,2,4,ORDE,2   
+FITEM,5,40  
+FITEM,5,42  
+CM,_Y,LINE  
+LSEL, , , ,P51X 
+CM,_Y1,LINE 
+CMSEL,,_Y   
+!*  
+LESIZE,_Y1, , ,4, , , , ,1  
+!*  
+FLST,2,3,4,ORDE,3   
+FITEM,2,19  
+FITEM,2,37  
+FITEM,2,-38 
+LCCAT,P51X  
+CM,_Y,AREA  
+ASEL, , , ,      16 
+CM,_Y1,AREA 
+CHKMSH,'AREA'   
+CMSEL,S,_Y  
+!*  
+AMESH,_Y1   
+!*  
+CMDELE,_Y   
+CMDELE,_Y1  
+CMDELE,_Y2  
+!*  
+CM,_Y,LINE  
+*SET,_Z1,LSINQR(0,13)   
+*IF,_z1,ne,0,then   
+LSEL,R,LCCA 
+*SET,_Z2,LSINQR(0,13)   
+LDELE,ALL   
+*SET,_Z3,_Z1-_Z2
+*IF,_Z3,NE,0,THEN   
+CMSEL,S,_Y  
+CMDELE,_Y   
+*ENDIF  
+*ELSE   
+CMSEL,S,_Y  
+CMDELE,_Y   
+*ENDIF  
+!*  
+SAVE
+TYPE,   2   
+EXTOPT,ESIZE,1,0,   
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,1   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,11,5,ORDE,2  
+FITEM,2,6   
+FITEM,2,-16 
+VEXT,P51X, , ,0,0,-20,,,,   
+TYPE,   2   
+EXTOPT,ESIZE,1,0,   
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,2   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,5,5,ORDE,2   
+FITEM,2,1   
+FITEM,2,-5  
+VEXT,P51X, , ,0,0,-20,,,,   
+FLST,3,16,6,ORDE,2  
+FITEM,3,1   
+FITEM,3,-16 
+VGEN,4,P51X, , , , ,-4000, ,0   
+TYPE,   2   
+EXTOPT,ESIZE,20,0,  
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,1   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,8,5,ORDE,8   
+FITEM,2,80  
+FITEM,2,86  
+FITEM,2,91  
+FITEM,2,96  
+FITEM,2,101 
+FITEM,2,106 
+FITEM,2,111 
+FITEM,2,116 
+VEXT,P51X, , ,0,0,3980,,,,  
+TYPE,   2   
+EXTOPT,ESIZE,20,0,  
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,2   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,5,5,ORDE,5   
+FITEM,2,133 
+FITEM,2,139 
+FITEM,2,144 
+FITEM,2,149 
+FITEM,2,154 
+VEXT,P51X, , ,0,0,3980,,,,  
+TYPE,   2   
+EXTOPT,ESIZE,20,0,  
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,1   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,8,5,ORDE,8   
+FITEM,2,159 
+FITEM,2,165 
+FITEM,2,170 
+FITEM,2,175 
+FITEM,2,180 
+FITEM,2,185 
+FITEM,2,190 
+FITEM,2,195 
+VEXT,P51X, , ,0,0,3980,,,,  
+TYPE,   2   
+EXTOPT,ESIZE,20,0,  
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,2   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,5,5,ORDE,5   
+FITEM,2,212 
+FITEM,2,218 
+FITEM,2,223 
+FITEM,2,228 
+FITEM,2,233 
+VEXT,P51X, , ,0,0,3980,,,,  
+TYPE,   2   
+EXTOPT,ESIZE,20,0,  
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,1   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,8,5,ORDE,8   
+FITEM,2,238 
+FITEM,2,244 
+FITEM,2,249 
+FITEM,2,254 
+FITEM,2,259 
+FITEM,2,264 
+FITEM,2,269 
+FITEM,2,274 
+VEXT,P51X, , ,0,0,3980,,,,  
+TYPE,   2   
+EXTOPT,ESIZE,20,0,  
+EXTOPT,ACLEAR,0 
+!*  
+EXTOPT,ATTR,0,0,0   
+MAT,2   
+REAL,_Z4
+ESYS,0  
+!*  
+FLST,2,5,5,ORDE,5   
+FITEM,2,291 
+FITEM,2,297 
+FITEM,2,302 
+FITEM,2,307 
+FITEM,2,312 
+VEXT,P51X, , ,0,0,3980,,,,  
+FLST,3,103,6,ORDE,2 
+FITEM,3,1   
+FITEM,3,-103
+VGEN,5,P51X, , ,660, , , ,0 
+NUMMRG,NODE, , , ,LOW   
+EPLOT   
+FINISH  
+/SOL
+FLST,2,328,1,ORDE,120   
+FITEM,2,79  
+FITEM,2,83  
+FITEM,2,-90 
+FITEM,2,165 
+FITEM,2,169 
+FITEM,2,-176
+FITEM,2,343 
+FITEM,2,347 
+FITEM,2,-354
+FITEM,2,379 
+FITEM,2,383 
+FITEM,2,-390
+FITEM,2,585 
+FITEM,2,589 
+FITEM,2,-596
+FITEM,2,621 
+FITEM,2,625 
+FITEM,2,-632
+FITEM,2,827 
+FITEM,2,831 
+FITEM,2,-838
+FITEM,2,863 
+FITEM,2,867 
+FITEM,2,-874
+FITEM,2,5869
+FITEM,2,5874
+FITEM,2,-5880   
+FITEM,2,5905
+FITEM,2,5910
+FITEM,2,-5916   
+FITEM,2,6111
+FITEM,2,6116
+FITEM,2,-6122   
+FITEM,2,6147
+FITEM,2,6152
+FITEM,2,-6158   
+FITEM,2,6353
+FITEM,2,6358
+FITEM,2,-6364   
+FITEM,2,6389
+FITEM,2,6394
+FITEM,2,-6400   
+FITEM,2,6595
+FITEM,2,6600
+FITEM,2,-6606   
+FITEM,2,6631
+FITEM,2,6636
+FITEM,2,-6642   
+FITEM,2,11637   
+FITEM,2,11642   
+FITEM,2,-11648  
+FITEM,2,11673   
+FITEM,2,11678   
+FITEM,2,-11684  
+FITEM,2,11879   
+FITEM,2,11884   
+FITEM,2,-11890  
+FITEM,2,11915   
+FITEM,2,11920   
+FITEM,2,-11926  
+FITEM,2,12121   
+FITEM,2,12126   
+FITEM,2,-12132  
+FITEM,2,12157   
+FITEM,2,12162   
+FITEM,2,-12168  
+FITEM,2,12363   
+FITEM,2,12368   
+FITEM,2,-12374  
+FITEM,2,12399   
+FITEM,2,12404   
+FITEM,2,-12410  
+FITEM,2,17405   
+FITEM,2,17410   
+FITEM,2,-17416  
+FITEM,2,17441   
+FITEM,2,17446   
+FITEM,2,-17452  
+FITEM,2,17647   
+FITEM,2,17652   
+FITEM,2,-17658  
+FITEM,2,17683   
+FITEM,2,17688   
+FITEM,2,-17694  
+FITEM,2,17889   
+FITEM,2,17894   
+FITEM,2,-17900  
+FITEM,2,17925   
+FITEM,2,17930   
+FITEM,2,-17936  
+FITEM,2,18131   
+FITEM,2,18136   
+FITEM,2,-18142  
+FITEM,2,18167   
+FITEM,2,18172   
+FITEM,2,-18178  
+FITEM,2,23173   
+FITEM,2,23178   
+FITEM,2,-23184  
+FITEM,2,23209   
+FITEM,2,23214   
+FITEM,2,-23220  
+FITEM,2,23415   
+FITEM,2,23420   
+FITEM,2,-23426  
+FITEM,2,23451   
+FITEM,2,23456   
+FITEM,2,-23462  
+FITEM,2,23657   
+FITEM,2,23662   
+FITEM,2,-23668  
+FITEM,2,23693   
+FITEM,2,23698   
+FITEM,2,-23704  
+FITEM,2,23899   
+FITEM,2,23904   
+FITEM,2,-23910  
+FITEM,2,23935   
+FITEM,2,23940   
+FITEM,2,-23946  
+!*  
+/GO 
+D,P51X, ,0, , , ,ALL, , , , ,    
+ALLSEL,ALL  
+NSEL,S,LOC,Y,64 
+NPLOT   
+FLST,2,8,1,ORDE,8   
+FITEM,2,19381   
+FITEM,2,-19382  
+FITEM,2,19400   
+FITEM,2,-19401  
+FITEM,2,19419   
+FITEM,2,-19420  
+FITEM,2,19438   
+FITEM,2,-19439  
+/GO 
+!*  
+SF,P51X,PRES,0.707  
+ALLSEL,ALL  
+EPLOT   
+/VIEW,1,1,1,1   
+/ANG,1  
+/REP,FAST   
+/AUTO,1 
+/REP,FAST   
+FINISH  
+! /EXIT,NOSAV   

@@ -1,0 +1,162 @@
+/batch,list
+/com ** ==========================================
+/com ** 
+/com **  Piezo-fsi 3D layered / ANSYS master file
+/com **
+/com ** ==========================================
+
+vtop = -0.175				!Voltage applied to the top of the PZT layer              	
+vbot = 0				!Voltage applied to the bottom of the PZT layer
+
+seltol,1e-6				!Selection tolerance
+
+/prep7
+
+/com
+/com  -- Element types
+/com 
+et,1,solid5,3 ! Hexaedral Coupled-Field Solid
+et,2,solid95   ! 3-D 20-Node Structural 
+
+
+
+/com  -- Material matrices for PZT4 (polar axis along Y-axis): ANSYS input
+/com
+/com   [s11 s13 s12  0  0  0 ]        [ 0 d31  0 ]     
+/com   [s13 s33 s13  0  0  0 ]        [ 0 d33  0 ]      
+/com   [s12 s13 s11  0  0  0 ]        [ 0 d31  0 ]      
+/com   [ 0   0   0  s44 0  0 ]        [d15 0   0 ]
+/com   [ 0   0   0   0 s44 0 ]        [ 0  0  d15]
+/com   [ 0   0   0   0  0 s66]        [ 0  0   0 ]
+
+s11=13.2e10
+s12=7.1e1
+s13=7.3e10
+s33=11.5e10
+s44=2.6e10
+s66=3e10
+
+tb,anel,1				!Define structural table
+tbdata,1,s11,s13,s12			!Input [C] matrix
+tbdata,7,s33,s13			
+tbdata,12,s11				
+tbdata,16,s44				
+tbdata,19,s44			
+tbdata,21,s66			
+
+d13=-4.1
+d33=14.1
+d15=10.5
+
+tb,piez,1				!Define Piez. table
+tbdata,2,d13				!Input Piezoelectric strain matrix
+tbdata,5,d33
+tbdata,8,d13
+tbdata,10,d15
+tbdata,15,d15
+
+mp,perx,1,804.6				!Permittivity (x direction)
+mp,pery,1,659.7				!Permittivity (y direction)
+mp,perz,1,804.6				!Permittivity (z direction)
+mp,dens,1,7500				!Density
+
+/com
+/com  -- Material properties for Silicon
+/com
+mp,ex,2,1.689E11			!Young modulus
+mp,prxy,2,0.3				!Poisson coefficient
+mp,dens,2,2329				!Density
+
+/com
+/com  -- Modeling
+/com
+block,,1.25e-3,0.27e-3,0.34e-3,,0.1e-3		!Piezo model
+block,,1.25e-3,0.2e-3,0.27e-3,,0.1e-3
+block,1.25e-3,2.5e-3,0.2e-3,0.27e-3,,0.1e-3		!Silicon model
+btol,3.5e-10
+vglue,all
+
+/com
+/com  -- Meshing
+/com
+lesize,10,,,2				
+lesize,11,,,2
+lesize,12,,,2
+lesize,35,,,2
+lesize,34,,,2
+lesize,3,,,5
+lesize,6,,,5
+lesize,8,,,5
+lesize,38,,,5
+lesize,39,,,5
+lesize,40,,,5
+lesize,27,,,5
+lesize,30,,,5
+lesize,2,,,5
+lesize,5,,,5
+lesize,7,,,5
+lesize,17,,,5
+lesize,41,,,5
+lesize,42,,,5
+lesize,44,,,5
+vsel,s,,,1
+type,1
+mat,1
+mshape,0,3d				!Volume mesh using Hex. 
+mshkey,1				!Mapped meshing
+vmesh,1
+allsel
+vsel,s,,,4
+vsel,a,,,5
+type,2
+mat,2
+mshape,0,3d				!Volume mesh using Hex.
+mshkey,1				!Mapped meshing
+vmesh,all
+allsel
+
+/com
+/com -- Boundary conditions for Piezo
+/com
+esel,s,type,,1		
+allsel,below,elem
+nsel,r,loc,y,0.27e-3
+d,all,volt,vbot     			!Apply Voltage on piezo layer 
+esel,s,type,,1		
+allsel,below,elem
+nsel,r,loc,y,0.34e-3
+d,all,volt,vtop   
+allsel,below,elem
+nsel,r,loc,x,0
+d,all,ux,0				!Symmetry boundaries (at x=0)
+d,all,uz,0
+
+/com
+/com -- Boundary conditions for silicon
+/com
+esel,s,type,,2
+allsel,below,elem
+nsel,r,loc,x,0
+d,all,ux,0				!Symmetry boundaries (at x=0)
+d,all,uz,0
+allsel,below,elem
+nsel,r,loc,x,2.5e-3
+d,all,ux,0
+d,all,uy,0
+d,all,uz,0
+allsel
+nsel,s,loc,y,0.2e-3     		!Set FSI interface
+sf,all,fsin,1
+allsel
+save
+
+/com
+/com -- Symmetry boundaries for Piezo and and silicon
+/com 
+nsel,s,loc,z,0	
+nsel,a,loc,z,0.1e-3
+d,all,uz,0				!Constraint uz for lateral walls
+allsel
+
+cdwrite,db,pfsi-solid,cdb
+finish

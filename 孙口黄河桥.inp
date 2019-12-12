@@ -1,0 +1,297 @@
+fini
+/clear
+!孙口黄河桥4x108m桁梁计算(中活载，等效荷载法，不建纵梁模型)
+/config,NRES,100000
+/PREP7  
+!* 
+ET,1,LINK1 
+
+   !不同杆件截面积
+
+R,1,0.0576
+R,2,0.06356
+R,3,0.08104
+R,4,0.06912
+R,5,0.04608
+R,6,0.0866
+R,7,0.05204
+R,8,0.06792
+R,9,0.06236
+R,10,0.07944
+R,11,0.085
+R,12,0.0566
+R,13,0.05104
+R,14,0.06
+R,15,0.04536
+R,16,0.05016
+R,17,0.03716
+R,18,0.028576
+R,19,0.06052
+R,20,0.068784
+R,21,0.0656
+
+MPTEMP,1,0  
+MPDATA,EX,1,,2.1e8
+MPDATA,PRXY,1,,0.3 
+MPDATA,DENS,1,,7.8         !定义材料密度，和加速度配合
+TYPE,1  
+MAT,1
+REAL,17
+ll=4*108              !梁全长
+hh=13.6                 !桁梁高
+ww=12                  !节间长
+nn1=ll/ww+1           !一侧主桁下弦纵向节点最大编号
+!ACEL,,10             !施加y方向重力加速度，本计算不施加
+!
+!以下完成单侧平面桁架单元的建立（X 桁架）
+n,1,0,0,0              !下弦第一点
+n,nn1,ll,0,0            !下弦最后一点
+fill,1,nn1
+nn2=nn1+1             !上弦第一点编号
+n,nn2,ww/2,hh,0         
+n,nn2+nn1-2,ll-ww/2,hh,0           !上弦最后一点
+fill,nn2,nn2+nn1-2
+
+*DO,ii,1,nn1-1,1          !下弦单元
+  e,ii,ii+1
+*enddo
+*do,ii,nn2,nn2+nn1-3,1      !上弦单元
+  e,ii,ii+1
+*enddo
+
+*do,ii,1,nn1-1,1            !斜腹杆
+  e,ii,nn2+ii-1
+  e,ii+1,nn2+ii-1
+*enddo
+
+
+
+!选择单元
+esel,s,,,37
+esel,a,,,71
+esel,a,,,44
+esel,a,,,64
+esel,a,,,46
+esel,a,,,62
+esel,a,,,49,50
+esel,a,,,58,59
+esel,a,,,53
+esel,a,,,55
+!改变实常数（截面积）
+emodif,all,real,1
+
+esel,s,,,38
+esel,a,,,70
+esel,a,,,42
+esel,a,,,66
+emodif,all,real,2
+
+esel,all
+esel,s,,,39,40
+esel,a,,,68,69
+emodif,all,real,3
+
+esel,all
+esel,s,,,41
+esel,a,,,67
+emodif,all,real,4
+
+esel,all
+esel,s,,,43
+esel,a,,,65
+esel,a,,,47
+esel,a,,,61
+esel,a,,,52
+esel,a,,,56
+emodif,all,real,5
+
+esel,all
+esel,s,,,45
+esel,a,,,63
+esel,a,,,54
+emodif,all,real,6
+
+esel,all
+esel,s,,,48
+esel,a,,,60
+esel,a,,,51
+esel,a,,,57
+emodif,all,real,7
+
+esel,all
+esel,s,,,1
+esel,a,,,36
+esel,a,,,9,10
+esel,a,,,27,28
+esel,a,,,18,19
+emodif,all,real,8
+
+esel,all
+esel,s,,,2
+esel,a,,,35
+esel,a,,,7
+esel,a,,,30
+esel,a,,,11
+esel,a,,,26
+esel,a,,,13,15
+esel,a,,,22,24
+esel,a,,,17
+esel,a,,,20
+emodif,all,real,9
+
+esel,all
+esel,s,,,3
+esel,a,,,34
+esel,a,,,6
+esel,a,,,31
+emodif,all,real,10
+
+esel,all
+esel,s,,,4,5
+esel,a,,,32,33
+emodif,all,real,11
+
+esel,all
+esel,s,,,8
+esel,a,,,29
+emodif,all,real,12
+
+esel,all
+esel,s,,,12
+esel,a,,,25
+esel,a,,,16
+esel,a,,,21
+emodif,all,real,13
+
+esel,all
+esel,s,,,72
+esel,a,,,143
+esel,a,,,90
+esel,a,,,125
+esel,a,,,107,108
+emodif,all,real,14
+
+esel,all
+esel,s,,,73
+esel,a,,,142
+esel,a,,,83,84
+esel,a,,,131,132
+esel,a,,,107,108
+esel,a,,,93
+esel,a,,,122
+esel,a,,,104
+esel,a,,,111
+emodif,all,real,15
+
+esel,all
+esel,s,,,74
+esel,a,,,141
+esel,a,,,86
+esel,a,,,129
+esel,a,,,91
+esel,a,,,124
+esel,a,,,94
+esel,a,,,121
+esel,a,,,103
+esel,a,,,112
+esel,a,,,106
+esel,a,,,109
+emodif,all,real,16
+
+esel,all
+esel,s,,,77,80
+esel,a,,,135,138
+esel,a,,,97,100
+esel,a,,,115,118
+emodif,all,real,18
+
+esel,all
+esel,s,,,85
+esel,a,,,130
+esel,a,,,88
+esel,a,,,127
+esel,a,,,92
+esel,a,,,123
+esel,a,,,105
+esel,a,,,110
+emodif,all,real,19
+
+esel,all
+esel,s,,,87
+esel,a,,,128
+emodif,all,real,20
+
+esel,all
+esel,s,,,89
+esel,a,,,126
+emodif,all,real,21
+
+esel,all
+
+/solu
+ !约束，可根据实际情况增加约束
+D,1,UY,0
+D,10,UY,0
+D,19,UY,0
+D,28,UY,0
+D,37,UY,0
+D,19,UX,0
+
+!施加荷载
+!加载
+
+x0=0                           !从-1.0开始加载
+x1=432
+LHY=0                  !加载平面的竖向坐标
+D_l=12                         !单位荷载移动步长
+nHzb=nint((x1-x0)/D_l+0.5)+1
+*DIM,hzwz,ARRAY,nHzb          !定义荷载位置数组
+
+xx=x0                         !单位荷载移动位置
+
+*do,ii,1,nHzb,1
+!  TIME,(ii)*Delt_Time          !结束时间
+  KBC,0                       !台阶加载
+  NSUBST,5                    !子步数
+  fdele,all,all
+      *if,xx,gt,x1,then
+        *exit
+      *endif    
+  nsel,s,node,,node(xx,LHY,0) 
+  esln
+  *get,emin,elem,,num,min
+  ee=emin        
+  edy=0                     !先给荷载单元赋值 
+  ecount=elmiqr(0,13)      
+  *do,nn,1,ecount
+      ye1= ny(nelem(ee,1))    !单元节点坐标  
+      ye2= ny(nelem(ee,2))
+      xe1= nx(nelem(ee,1))
+      xe2= nx(nelem(ee,2))
+      *if,abs(ye1-ye2),le,1e-6,and,(xx-xe1)*(xx-xe2),le,0,then
+          edy=ee
+      *endif
+      ee=elnext(ee)                            
+  *enddo
+      cc=abs(nx(nelem(edy,1))-nx(nelem(edy,2)))          !单元x方向长
+      aa=abs(nx(nelem(edy,1))-xx)                       !I节点距荷载长度
+      bb=abs(nx(nelem(edy,2))-xx)                       !J节点距荷载长度
+      hzi=1*bb/cc                           !I节点等效荷载
+      hzj=1*aa/cc                           !j节点等效荷载
+
+      allsel,all,all
+      f,nelem(edy,1),fy,-hzi
+      f,nelem(edy,2),fy,-hzj
+  
+  hzwz(ii)=xx                    !将荷载的实际位置存入数组
+  solve
+  xx=xx+D_l 
+*enddo
+
+*CFOPEN,hzwz,txt
+*do,kk,1,ii,1
+zzz=hzwz(kk)
+*cfwrite,, zzz
+*enddo
+*cfclos
+ 
